@@ -111,7 +111,7 @@ public class Program{
         }
     }
         
-    void use(){
+    public void use(){
         glUseProgram(prog);
         active=this;
         for(String s : currentuniforms.keySet() ){
@@ -120,7 +120,7 @@ public class Program{
     }
         
 
-    void setUniform(String name, Object value){
+    public void setUniform(String name, Object value){
         //System.out.println("Set "+name+" to\n"+value);
         
         if(active != this)

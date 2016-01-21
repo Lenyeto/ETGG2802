@@ -1,4 +1,4 @@
-package framework;
+package game;
 
 import framework.math3d.vec3;
 import framework.math3d.mat4;
@@ -11,8 +11,9 @@ import static framework.math3d.math3d.sub;
 import static framework.math3d.math3d.translation;
 import framework.math3d.vec2;
 import framework.math3d.vec4;
+import framework.*;
 
-public class Main{
+public class main{
     
     
     public static void main(String[] args){
@@ -97,7 +98,7 @@ public class Main{
 
             float now = (float)(System.nanoTime()*1E-9);
             float elapsed = now-prev;
-
+            
             prev=now;
 
             if( keys.contains(SDLK_w ))
