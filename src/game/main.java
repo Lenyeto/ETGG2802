@@ -102,13 +102,14 @@ public class main{
             prev=now;
 
             if( keys.contains(SDLK_w ))
-                cam.walk(0.5f*elapsed);
+                cam.moveForward(0.5f*elapsed);
             if( keys.contains(SDLK_s))
-                cam.walk(-0.5f*elapsed);
+                cam.moveBackward(0.5f*elapsed);
             if( keys.contains(SDLK_a))
-                cam.turn(0.4f*elapsed);
+                
+                cam.strafe(new vec3(-.03,0,0));
             if( keys.contains(SDLK_d))
-                cam.turn(-0.4f*elapsed);
+                cam.strafe(new vec3(.03,0,0));
             if( keys.contains(SDLK_r))
                 cam.tilt(0.4f*elapsed);
             if( keys.contains(SDLK_t))
