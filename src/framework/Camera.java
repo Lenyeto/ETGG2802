@@ -82,18 +82,8 @@ public class Camera{
         compute_view_matrix();
     }
         
-    public void moveForward( float a){
-        if(a <0){
-            a*= -1;
-        }
+    public void walk( float a){
         eye = add( eye , mul(-a , W ) );
-        compute_view_matrix();
-    }
-    public void moveBackward( float a){
-        if(a <0){
-            a*= -1;
-        }
-        eye = add( eye , mul(a , W ) );
         compute_view_matrix();
     }
         
@@ -108,11 +98,9 @@ public class Camera{
         vec4 up = new vec4(up1,0.0);
         vec4 look = normalize( sub( coi,eye) );
         W = mul(-1.0,look);
-        U = normalize(cross(look,up));
-        V = normalize(cross(U,look));
+        U = cross(look,up);
+        V = cross(U,look);
         compute_view_matrix();
     }
-    
-    
 }
     
