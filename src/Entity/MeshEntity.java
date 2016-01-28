@@ -10,7 +10,7 @@ import framework.Mesh;
  *
  * @author buellw
  */
-public class MeshEntity extends Base {
+public class MeshEntity extends BaseEntity {
     private Mesh mesh;
     
     public MeshEntity(int x, int y, int z, String filename) {
