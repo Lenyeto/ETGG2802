@@ -12,6 +12,7 @@ import static framework.math3d.math3d.translation;
 import framework.math3d.vec2;
 import framework.math3d.vec4;
 import framework.*;
+import Entity.Player;
 
 public class main{
     
@@ -56,12 +57,13 @@ public class main{
         Program blurprog;
         float prev;
         Mesh column;
-        UnitSquare usq;
         Framebuffer fbo1;
         Framebuffer fbo2;
+        Player player;
         Texture2D dummytex = new SolidTexture(GL_UNSIGNED_BYTE,0,0,0,0);
         column = new Mesh("assets/column.obj.mesh");
-        usq = new UnitSquare();
+        
+        player = new Player(0,0,0, "assets/tetraship.obj.mesh");
 
         fbo1 = new Framebuffer(512,512);
         fbo2 = new Framebuffer(512,512);
@@ -123,6 +125,7 @@ public class main{
             cam.draw(prog);
             prog.setUniform("worldMatrix",mat4.identity());
             column.draw(prog);
+            player.render(prog);
             
             //fbo1.unbind();
 

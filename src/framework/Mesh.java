@@ -23,11 +23,11 @@ public class Mesh {
     String filename="(none)";
     int numvertices;
     int floats_per_vertex;
-    int numindices;
+    public int numindices;
     int bits_per_index;
     int vbuff,ibuff;
-    int itype;
-    int vao;
+    public int itype;
+    public int vao;
     
     vec3 bbmin,bbmax;
     vec3 centroid;

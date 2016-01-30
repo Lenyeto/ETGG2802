@@ -102,5 +102,10 @@ public class Camera{
         V = cross(U,look);
         compute_view_matrix();
     }
+    
+    public void setPosition( vec3 pos ){
+        eye = new vec4(pos, 1.0);
+        compute_view_matrix();
+    }
 }
     

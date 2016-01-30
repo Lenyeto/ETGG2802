@@ -19,18 +19,19 @@ public class launcher {
     public launcher() {
         JFrame _frame = new JFrame("Launcher");
         _frame.setVisible(true);
-        _frame.setSize(500, 400);
-        _frame.setLocation(150, 0);
+        _frame.setSize(1920, 1080);
+        _frame.setLocation(0, 0);
         _frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         menuCanvas _panel = new menuCanvas();
-        _panel.setSize(400, 400);
+        _panel.setSize(20, 20);
         _panel.setLocation(0, 0);
         _frame.add(_panel);
         
         JButton _start_game = new JButton("Start Game");
-        _start_game.setSize(90, 50);
-        _start_game.setLocation(120, 0);
+        //_start_game.setSize(2, 2);
+        //_start_game.setPreferredSize(new Dimension(40, 40));
+        //_start_game.setLocation(0, 0);
         _start_game.addActionListener(_panel);
         _frame.add(_start_game);
         

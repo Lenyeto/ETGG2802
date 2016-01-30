@@ -17,4 +17,7 @@ public class MeshEntity extends BaseEntity {
         super(x, y, z);
         mesh = new Mesh(filename);
     }
+    public Mesh getMesh(){
+        return mesh;
+    }
 }
