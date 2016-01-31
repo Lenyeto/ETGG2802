@@ -1,5 +1,6 @@
 package game;
 
+import Entity.MeshEntity;
 import framework.math3d.vec3;
 import framework.math3d.mat4;
 import java.util.Set;
@@ -13,14 +14,26 @@ import framework.math3d.vec2;
 import framework.math3d.vec4;
 import framework.*;
 import Entity.Player;
+import java.util.List;
 
 public class main{
     
     
     public static void main(String[] args){
         
+        int screenWidth = 512;
+        int screenHeight = 512;
+        
+        if (args.length >= 2) {
+                String[] tmp = args[1].split("x");
+                if (tmp.length >= 2) {
+                    screenWidth = Integer.parseInt(tmp[0]);
+                    screenHeight = Integer.parseInt(tmp[1]);
+                }
+        }
+        
         SDL_Init(SDL_INIT_VIDEO);
-        long win = SDL_CreateWindow("ETGG 2802",40,60, 512,512, SDL_WINDOW_OPENGL );
+        long win = SDL_CreateWindow("ETGG 2802",40,60, screenWidth,screenHeight, SDL_WINDOW_OPENGL );
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,SDL_GL_CONTEXT_PROFILE_CORE);
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,24);
         SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,8);
@@ -63,15 +76,42 @@ public class main{
         Texture2D dummytex = new SolidTexture(GL_UNSIGNED_BYTE,0,0,0,0);
         column = new Mesh("assets/column.obj.mesh");
         
-        player = new Player(2,2,2, "assets/tetraship.obj.mesh");
 
-        fbo1 = new Framebuffer(512,512);
-        fbo2 = new Framebuffer(512,512);
+        fbo1 = new Framebuffer(screenWidth,screenHeight);
+        fbo2 = new Framebuffer(screenWidth,screenHeight);
 
         prog = new Program("vs.txt","fs.txt");
         blurprog = new Program("blurvs.txt","blurfs.txt");
 
-
+        
+        
+        
+//        TreeSet<MeshEntity> entities = new TreeSet();
+//        if (args.length >= 1) {
+//            if (args[0] == "1") {
+//                player = new Player(0,0,0, "assets/tetraship.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d);
+//                entities.add(player);
+//            } else if (args[0] == "2") {
+//
+//            } else if (args[0] == "3") {
+//
+//            } else if (args[0] == "4"){
+//
+//            } else {
+//                System.exit(1);
+//            }
+//            
+//        } else {
+//            player = new Player(0,0,0, "assets/tetraship.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d);
+//            entities.add(player);
+//        }
+        
+        player = new Player(0, 0, 0, "assets/tetraship.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d);
+        
+        
+        
+        
+        
         cam = new Camera();
         cam.lookAt( new vec3(0,0,5), new vec3(0,0,0), new vec3(0,1,0) );
 
@@ -125,7 +165,13 @@ public class main{
             cam.draw(prog);
             prog.setUniform("worldMatrix",mat4.identity());
             column.draw(prog);
+            
+//            for (MeshEntity e : entities) {
+//                e.render(prog);
+//            }
+            
             player.render(prog);
+            
             
             //fbo1.unbind();
 

@@ -34,15 +34,15 @@ public class BaseEntity {
         return z;
     }
     
-    public void setX(int i) {
+    public void setX(float i) {
         x = i;
     }
     
-    public void setY(int i) {
+    public void setY(float i) {
         y = i;
     }
     
-    public void setZ(int i) {
+    public void setZ(float i) {
         z = i;
     }
 }

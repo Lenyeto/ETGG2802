@@ -19,25 +19,30 @@ import framework.math3d.mat4;
  */
 public class Player extends MeshEntity {
     
-    Mesh m;
-    public Player(int x, int y, int z, String filename) {
+    private int key_forward;
+    private int key_backward;
+    private int key_left;
+    private int key_right;
+    private int key_shoot;
+    
+    public Player(int x, int y, int z, String filename, int key_foward, int key_backward, int key_strafe_left, int key_strafe_right) {
         super(x, y, z, filename);
-        m = getMesh();
+        
     }
     
-    public void update(SDL_Event ev, Set<Integer> keys, int key_foward, int key_backward, int key_strafe_left, int key_strafe_right) {
+    public void update(SDL_Event ev, Set<Integer> keys, float dtime) {
         if (ev.type == SDL_KEYDOWN) {
-            if (keys.contains(key_foward)) {
-                //Create a .forward function to get the forward vector to have the position of this moved in the foward vector.
+            if (keys.contains(key_forward)) {
+                setX(getX() + dtime);
             }
             if (keys.contains(key_backward)) {
-                
+                setX(getX() - dtime);
             }
-            if (keys.contains(key_strafe_left)) {
-                
+            if (keys.contains(key_left)) {
+                setX(getY() + dtime);
             }
-            if (keys.contains(key_strafe_right)) {
-                //Create a .right function to get the right vector to have the position of this moved in the right vector.
+            if (keys.contains(key_right)) {
+                setX(getY() - dtime);
                 
             }
         }

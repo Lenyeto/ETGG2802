@@ -46,9 +46,10 @@ class menuCanvas extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent ae) {
         JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
         
-        String[] s = new String[1];
+        String[] s = new String[2];
         
         s[0] = "1";
+        s[1] = "1920x1080";
         topFrame.setVisible(false);
         main game = new main();
         game.main(s);
