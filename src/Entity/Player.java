@@ -42,12 +42,7 @@ public class Player extends MeshEntity {
             }
         }
     }
-    public void render(Program prog){ 
-        prog.setUniform("worldMatrix", mat4.identity());
-        prog.setUniform("viewMatrix", mat4.identity());
-        prog.setUniform("projMatrix", mat4.identity());
-        m.draw(prog);
-    }
+    
     
 }
 

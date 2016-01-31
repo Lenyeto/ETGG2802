@@ -5,6 +5,8 @@
  */
 package Entity;
 import framework.Mesh;
+import framework.Program;
+import framework.math3d.mat4;
 
 /**
  *
@@ -12,6 +14,7 @@ import framework.Mesh;
  */
 public class MeshEntity extends BaseEntity {
     private Mesh mesh;
+    private mat4 worldMatrix = mat4.identity();
     
     public MeshEntity(int x, int y, int z, String filename) {
         super(x, y, z);
@@ -19,5 +22,18 @@ public class MeshEntity extends BaseEntity {
     }
     public Mesh getMesh(){
         return mesh;
+    }
+    
+    public void update() {
+        worldMatrix.setPos(getX(), getY(), getZ());
+    }
+        
+    public void render(Program prog){ 
+        
+        prog.setUniform("worldMatrix", worldMatrix);
+        
+        //prog.setUniform("viewMatrix", mat4.identity());
+        //prog.setUniform("projMatrix", mat4.identity());
+        mesh.draw(prog);
     }
 }

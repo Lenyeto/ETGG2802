@@ -10,9 +10,9 @@ package Entity;
  * @author buellw
  */
 public class BaseEntity {
-    private int x, y, z;
+    private float x, y, z;
     
-    public BaseEntity(int x, int y, int z) {
+    public BaseEntity(float x, float y, float z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -22,15 +22,15 @@ public class BaseEntity {
         
     }
     
-    public int getX() {
+    public float getX() {
         return x;
     }
     
-    public int getY() {
+    public float getY() {
         return y;
     }
     
-    public int getZ() {
+    public float getZ() {
         return z;
     }
     

@@ -150,11 +150,21 @@ public class mat4{
         _M[r*4+c] = v;
     }
     
+    public void setScale(float x, float y, float z) {
+        _M[0] = x;
+        _M[5] = y;
+        _M[10] = z;
+    }
+    
+    public void setPos(float x, float y, float z) {
+        _M[12] = x;
+        _M[13] = y;
+        _M[14] = z;
+    }
+    
     public float  get(int r, int c){
         return _M[r*4+c];
     }
-    
-    
     
     public static mat4 identity(){
         return new mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);

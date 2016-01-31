@@ -63,7 +63,7 @@ public class main{
         Texture2D dummytex = new SolidTexture(GL_UNSIGNED_BYTE,0,0,0,0);
         column = new Mesh("assets/column.obj.mesh");
         
-        player = new Player(0,0,0, "assets/tetraship.obj.mesh");
+        player = new Player(2,2,2, "assets/tetraship.obj.mesh");
 
         fbo1 = new Framebuffer(512,512);
         fbo2 = new Framebuffer(512,512);
