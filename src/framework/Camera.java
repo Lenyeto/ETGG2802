@@ -21,14 +21,16 @@ public class Camera{
     vec4 V = new vec4(0,1,0,0);
     vec4 W = new vec4(0,0,1,0);
     
-    public Camera(){
+    public Camera(float aspect){
+        aspect_ratio = aspect;
+        fov_h = fov_v * aspect;
         compute_proj_matrix();
         compute_view_matrix();
     }
 
     public void compute_proj_matrix(){
         projMatrix = new mat4( 
-            1/tan(toRadians(fov_h)),0,0,0,
+            (1/tan(toRadians(fov_h))),0,0,0,
             0,1/tan(toRadians(fov_v)),0,0,
             0,0,1+2.0*yon/(hither-yon),-1,
             0,0,2.0*hither*yon/(hither-yon),0);

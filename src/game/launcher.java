@@ -110,7 +110,6 @@ class menuCanvas extends JPanel implements ActionListener {
         
         s[0] = playerCount;
         s[1] = resolution;
-        System.out.println(resolution);
         topFrame.setVisible(false);
         main game = new main();
         game.main(s);

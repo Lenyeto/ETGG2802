@@ -112,7 +112,7 @@ public class main{
         
         
         
-        cam = new Camera();
+        cam = new Camera(screenWidth/screenHeight);
         cam.lookAt( new vec3(0,0,5), new vec3(0,0,0), new vec3(0,1,0) );
 
         prev = (float)(System.nanoTime()*1E-9);
@@ -156,6 +156,8 @@ public class main{
             if( keys.contains(SDLK_t))
                 cam.tilt(-0.4f*elapsed);
 
+            player.update(ev, keys, elapsed);
+            
             //the fbo stuff is for later...
             //fbo1.bind();
             
