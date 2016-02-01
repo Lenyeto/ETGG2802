@@ -15,47 +15,116 @@ import javax.swing.*;
  *
  * @author William
  */
-public class launcher {
+public class launcher implements ActionListener{
+    
+    
+    private JButton _start_game;
+    private JComboBox _resolution_selection;
+    private JComboBox _player_count_selection;
+    private JFrame _frame;
+    private menuCanvas _panel;
+    private String[] resolutionChoices = {"640x640", "1280x720", "1920x1080", "2160x1440", "3840x2160"};
+    private String[] playerChoices = {"1", "2", "3", "4"};
+    
+    
     public launcher() {
-        JFrame _frame = new JFrame("Launcher");
+        _frame = new JFrame("Launcher");
         _frame.setVisible(true);
-        _frame.setSize(1920, 1080);
+        _frame.setSize(220, 400);
         _frame.setLocation(0, 0);
         _frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        _frame.setResizable(false);
         
-        menuCanvas _panel = new menuCanvas();
+        _panel = new menuCanvas();
         _panel.setSize(20, 20);
         _panel.setLocation(0, 0);
         _frame.add(_panel);
         
-        JButton _start_game = new JButton("Start Game");
-        //_start_game.setSize(2, 2);
+        _start_game = new JButton("Start Game");
+        _start_game.setSize(200, 20);
         //_start_game.setPreferredSize(new Dimension(40, 40));
         //_start_game.setLocation(0, 0);
+        _start_game.setVerticalAlignment(JLabel.CENTER);
+        _start_game.setHorizontalAlignment(JLabel.CENTER);
         _start_game.addActionListener(_panel);
-        _frame.add(_start_game);
         
+        JLabel _resolution_label = new JLabel("Resolution");
+        _resolution_label.setSize(200, 20);
+        _resolution_label.setLocation(0, 20);
+        
+        JLabel _playercount_label = new JLabel("Player Count");
+        _playercount_label.setSize(200, 20);
+        _playercount_label.setLocation(0, 40);
+        
+        JLabel _blank = new JLabel("");
+        
+        _resolution_selection = new JComboBox(resolutionChoices);
+        _resolution_selection.setSelectedIndex(0);
+        _resolution_selection.addActionListener(this);
+        _resolution_selection.setSize(130, 20);
+        _resolution_selection.setLocation(70, 20);
+        
+        _player_count_selection = new JComboBox(playerChoices);
+        _player_count_selection.setSelectedIndex(0);
+        _player_count_selection.addActionListener(this);
+        _player_count_selection.setSize(100, 20);
+        _player_count_selection.setLocation(100, 40);
+        
+        _frame.add(_start_game);
+        _frame.add(_resolution_selection);
+        _frame.add(_resolution_label);
+        _frame.add(_player_count_selection);
+        _frame.add(_playercount_label);
+        _frame.add(_blank);
+        
+        
+        
+        _frame.repaint();
     }
     
     public static void main(String[] args) {
         new launcher();
     }
+
+    public void actionPerformed(ActionEvent ae) {
+        _panel.setRes((String) _resolution_selection.getSelectedItem());
+        _panel.setPlayerCount((String) _player_count_selection.getSelectedItem());
+    }
 }
 
 class menuCanvas extends JPanel implements ActionListener {
+    
+    public menuCanvas() {
+        super(new BorderLayout());
+    }
+    
+    private String resolution = "640x640";
+    private String playerCount = "1";
+    
     public void actionPerformed(ActionEvent ae) {
         JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
         
+        
+        
         String[] s = new String[2];
         
-        s[0] = "1";
-        s[1] = "1920x1080";
+        s[0] = playerCount;
+        s[1] = resolution;
+        System.out.println(resolution);
         topFrame.setVisible(false);
         main game = new main();
         game.main(s);
         topFrame.setVisible(true);
         
         
+    }
+    
+    public void setRes(String s) {
+        resolution = s;
+    }
+    
+    public void setPlayerCount(String s) {
+        playerCount = s;
     }
     
     public void paint(Graphics g) {
