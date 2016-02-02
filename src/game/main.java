@@ -106,13 +106,13 @@ public class main{
 //            entities.add(player);
 //        }
         
-        player = new Player(0, 0, 0, "assets/tetraship.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d);
+        player = new Player(0, 0, 0, "assets/tetraship.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, screenWidth, screenHeight);
         
         
         
         
         
-        cam = new Camera(screenWidth/screenHeight);
+        cam = new Camera((float)screenWidth/(float)screenHeight);
         cam.lookAt( new vec3(0,0,5), new vec3(0,0,0), new vec3(0,1,0) );
 
         prev = (float)(System.nanoTime()*1E-9);
@@ -155,7 +155,6 @@ public class main{
                 cam.tilt(0.4f*elapsed);
             if( keys.contains(SDLK_t))
                 cam.tilt(-0.4f*elapsed);
-
             player.update(ev, keys, elapsed);
             
             //the fbo stuff is for later...
@@ -164,7 +163,8 @@ public class main{
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             prog.use();
             prog.setUniform("lightPos",new vec3(50,50,50) );
-            cam.draw(prog);
+            //cam.draw(prog);
+            player.getCam().draw(prog);
             prog.setUniform("worldMatrix",mat4.identity());
             column.draw(prog);
             

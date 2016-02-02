@@ -59,7 +59,7 @@ public class launcher implements ActionListener{
         JLabel _blank = new JLabel("");
         
         _resolution_selection = new JComboBox(resolutionChoices);
-        _resolution_selection.setSelectedIndex(0);
+        _resolution_selection.setSelectedIndex(2);
         _resolution_selection.addActionListener(this);
         _resolution_selection.setSize(130, 20);
         _resolution_selection.setLocation(70, 20);
@@ -98,7 +98,7 @@ class menuCanvas extends JPanel implements ActionListener {
         super(new BorderLayout());
     }
     
-    private String resolution = "640x640";
+    private String resolution = "1920x1080";
     private String playerCount = "1";
     
     public void actionPerformed(ActionEvent ae) {

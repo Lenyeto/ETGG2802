@@ -23,7 +23,7 @@ public class Camera{
     
     public Camera(float aspect){
         aspect_ratio = aspect;
-        fov_h = fov_v * aspect;
+        fov_h = ((float) (fov_v * -1.5 * aspect)); //Needs to be fixed to support the 640x640 resolution, currently mainly works with 1920x1080 aspect ratio.
         compute_proj_matrix();
         compute_view_matrix();
     }
@@ -107,6 +107,7 @@ public class Camera{
     
     public void setPosition( vec3 pos ){
         eye = new vec4(pos, 1.0);
+        compute_proj_matrix();
         compute_view_matrix();
     }
 }

@@ -16,7 +16,7 @@ public class MeshEntity extends BaseEntity {
     private Mesh mesh;
     private mat4 worldMatrix = mat4.identity();
     
-    public MeshEntity(int x, int y, int z, String filename) {
+    public MeshEntity(float x, float y, float z, String filename) {
         super(x, y, z);
         mesh = new Mesh(filename);
     }
