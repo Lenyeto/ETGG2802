@@ -20,6 +20,11 @@ public class MeshEntity extends BaseEntity {
         super(x, y, z);
         mesh = new Mesh(filename);
     }
+    
+    public void setScale(float x) {
+        worldMatrix.setScale(x, x, x);
+    }
+    
     public Mesh getMesh(){
         return mesh;
     }

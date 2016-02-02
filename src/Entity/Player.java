@@ -65,7 +65,15 @@ public class Player extends MeshEntity {
         
         for (Projectile p : projectiles) {
             p.update(dtime);
+            if (p.timeToDelete <= 0) {
+                projectiles.remove(p);
+                break;
+            }
         }
+        
+        ///SOMEBODY FIX THIS
+        
+        
         //Updates the position of the Camera
         
         
