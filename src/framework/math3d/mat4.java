@@ -3,6 +3,7 @@ package framework.math3d;
 import static framework.math3d.math3d.axisRotation;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
+import static java.lang.Math.*;
 
 public class mat4{
     public float[] _M = new float[16];
@@ -199,6 +200,27 @@ public class mat4{
 //        _M = tmpArray;
 //    }
     
+    public void rotate(float p, float y, float r) {
+        
+    }
+    
+    public mat4 getRotation(float p, float y, float r) {
+        
+        float caz = (float) cos(Math.toRadians(r));
+        float saz = (float) sin(Math.toRadians(r));
+        mat4 zm = new mat4(caz, -saz, 0, 0, saz, caz, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+        
+        float cay = (float) cos(Math.toRadians(y));
+        float say = (float) sin(Math.toRadians(y));
+        mat4 ym = new mat4(cay, 0, say, 0, 0, 1, 0, 0, -say, 0, cay, 0, 0, 0, 0, 1);
+        
+        float cax = (float) cos(Math.toRadians(p));
+        float sax = (float) sin(Math.toRadians(p));
+        mat4 xm = new mat4(1, 0, 0, 0, 0, cax, -sax, 0, 0, sax, cax, 0, 0, 0, 0, 1);
+        
+        return zm.mul(ym).mul(xm);
+    }
+    
     public vec3 getPos() {
         return new vec3(_M[12], _M[13], _M[14]);
     }
@@ -215,13 +237,26 @@ public class mat4{
         return new mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
     }
     
+//    public vec4 getRow(int r) {
+//        if (r == 0) {
+//            return new vec4(_M[0], _M[4], _M[8], _M[12]);
+//        } else if (r == 1) {
+//            return new vec4(_M[1], _M[5], _M[9], _M[13]);
+//        } else if (r == 2) {
+//            return new vec4(_M[2], _M[6], _M[10], _M[14]);
+//        } else if (r == 3) {
+//            return new vec4(_M[3], _M[7], _M[11], _M[15]);
+//        }
+//        throw new RuntimeException("Must be between 0 and 3.");
+//    }
+    
     public vec4 getRow(int r) {
         if (r == 0) {
-            return new vec4(_M[0], _M[4], _M[8], _M[12]);
+            return new vec4(_M[0], _M[4], _M[8], 0);
         } else if (r == 1) {
-            return new vec4(_M[1], _M[5], _M[9], _M[13]);
+            return new vec4(_M[1], _M[5], _M[9], 0);
         } else if (r == 2) {
-            return new vec4(_M[2], _M[6], _M[10], _M[14]);
+            return new vec4(_M[2], _M[6], _M[10], 0);
         } else if (r == 3) {
             return new vec4(_M[3], _M[7], _M[11], _M[15]);
         }
@@ -309,31 +344,84 @@ public class mat4{
         return m;
     }
     
+//    public vec3 forward() {
+//        return new vec3(-this.get(1, 2), -this.get(2, 3), -this.get(3, 3));
+//    }
+//    
+//    public vec3 backward() {
+//        return new vec3(this.get(1, 2), this.get(2, 3), this.get(3, 3));
+//    }
+//    
+//    public vec3 right() {
+//        return new vec3(this.get(1, 1), this.get(2, 1), this.get(3, 1));
+//    }
+//    
+//    public vec3 left() {
+//        return new vec3(-this.get(1, 1), -this.get(2, 1), -this.get(3, 1));
+//    }
+//    
+//    public vec3 up() {
+//        return new vec3(this.get(1, 2), this.get(2, 2), this.get(3, 3));
+//    }
+//    
+//    public vec3 down() {
+//        return new vec3(-this.get(1, 2), -this.get(2, 2), -this.get(3, 3));
+//    }
+    
     public vec3 forward() {
-        return new vec3(-this.get(1, 2), -this.get(2, 3), -this.get(3, 3));
+        return new vec3(-this.get(0, 1), -this.get(1, 2), -this.get(2, 2));
     }
     
     public vec3 backward() {
-        return new vec3(this.get(1, 2), this.get(2, 3), this.get(3, 3));
+        return new vec3(this.get(0, 1), this.get(1, 2), this.get(2, 2));
     }
     
     public vec3 right() {
-        return new vec3(this.get(1, 1), this.get(2, 1), this.get(3, 1));
+        return new vec3(this.get(0, 0), this.get(1, 0), this.get(2, 0));
     }
     
     public vec3 left() {
-        return new vec3(-this.get(1, 1), -this.get(2, 1), -this.get(3, 1));
+        return new vec3(-this.get(0, 0), -this.get(1, 0), -this.get(2, 0));
     }
     
     public vec3 up() {
-        return new vec3(this.get(1, 2), this.get(2, 2), this.get(3, 3));
+        return new vec3(this.get(0, 1), this.get(1, 1), this.get(2, 1));
     }
     
     public vec3 down() {
-        return new vec3(-this.get(1, 2), -this.get(2, 2), -this.get(3, 3));
+        return new vec3(-this.get(0, 1), -this.get(1, 1), -this.get(2, 1));
     }
     
     
+    public vec3 forward(mat4 rot) {
+        mat4 tmpMatrix = this.mul(rot);
+        return new vec3(-tmpMatrix.get(0, 1), -tmpMatrix.get(1, 2), -tmpMatrix.get(2, 2));
+    }
+    
+    public vec3 backward(mat4 rot) {
+        mat4 tmpMatrix = this.mul(rot);
+        return new vec3(tmpMatrix.get(0, 1), tmpMatrix.get(1, 2), tmpMatrix.get(2, 2));
+    }
+    
+    public vec3 right(mat4 rot) {
+        mat4 tmpMatrix = this.mul(rot);
+        return new vec3(tmpMatrix.get(0, 0), tmpMatrix.get(1, 0), tmpMatrix.get(2, 0));
+    }
+    
+    public vec3 left(mat4 rot) {
+        mat4 tmpMatrix = this.mul(rot);
+        return new vec3(-tmpMatrix.get(0, 0), -tmpMatrix.get(1, 0), -tmpMatrix.get(2, 0));
+    }
+    
+    public vec3 up(mat4 rot) {
+        mat4 tmpMatrix = this.mul(rot);
+        return new vec3(tmpMatrix.get(0, 1), tmpMatrix.get(1, 1), tmpMatrix.get(2, 1));
+    }
+    
+    public vec3 down(mat4 rot) {
+        mat4 tmpMatrix = this.mul(rot);
+        return new vec3(-tmpMatrix.get(0, 1), -tmpMatrix.get(1, 1), -tmpMatrix.get(2, 1));
+    }
 }
 
 
