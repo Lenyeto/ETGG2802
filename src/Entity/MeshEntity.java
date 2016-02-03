@@ -33,6 +33,18 @@ public class MeshEntity extends BaseEntity {
         rr = rr_;
     }
     
+    public float getPr() {
+        return pr;
+    }
+    
+    public float getYr() {
+        return yr;
+    }
+    
+    public float getRr() {
+        return rr;
+    }
+    
     public Mesh getMesh(){
         return mesh;
     }
@@ -51,7 +63,9 @@ public class MeshEntity extends BaseEntity {
     
     public void render(Program prog){ 
         
-        prog.setUniform("worldMatrix", worldMatrix.mul(worldMatrix.getRotation(pr, yr, rr)));
+        //prog.setUniform("worldMatrix", worldMatrix.mul(worldMatrix.getRotation(pr, yr, rr)));
+        prog.setUniform("worldMatrix", worldMatrix.getRotation(pr, yr, pr).mul(worldMatrix));
+        //prog.setUniform("worldMatrix", worldMatrix.getRotation(pr, yr, pr).mul(worldMatrix));
         System.out.println("POS"+worldMatrix.getPos());
         //prog.setUniform("viewMatrix", mat4.identity());
         //prog.setUniform("projMatrix", mat4.identity());

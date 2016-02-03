@@ -252,11 +252,11 @@ public class mat4{
     
     public vec4 getRow(int r) {
         if (r == 0) {
-            return new vec4(_M[0], _M[4], _M[8], 0);
+            return new vec4(_M[0], _M[4], _M[8], _M[12]);
         } else if (r == 1) {
-            return new vec4(_M[1], _M[5], _M[9], 0);
+            return new vec4(_M[1], _M[5], _M[9], _M[13]);
         } else if (r == 2) {
-            return new vec4(_M[2], _M[6], _M[10], 0);
+            return new vec4(_M[2], _M[6], _M[10], _M[14]);
         } else if (r == 3) {
             return new vec4(_M[3], _M[7], _M[11], _M[15]);
         }
@@ -394,32 +394,32 @@ public class mat4{
     
     
     public vec3 forward(mat4 rot) {
-        mat4 tmpMatrix = this.mul(rot);
+        mat4 tmpMatrix = rot;
         return new vec3(-tmpMatrix.get(0, 1), -tmpMatrix.get(1, 2), -tmpMatrix.get(2, 2));
     }
     
     public vec3 backward(mat4 rot) {
-        mat4 tmpMatrix = this.mul(rot);
+        mat4 tmpMatrix = rot;
         return new vec3(tmpMatrix.get(0, 1), tmpMatrix.get(1, 2), tmpMatrix.get(2, 2));
     }
     
     public vec3 right(mat4 rot) {
-        mat4 tmpMatrix = this.mul(rot);
+        mat4 tmpMatrix = rot;
         return new vec3(tmpMatrix.get(0, 0), tmpMatrix.get(1, 0), tmpMatrix.get(2, 0));
     }
     
     public vec3 left(mat4 rot) {
-        mat4 tmpMatrix = this.mul(rot);
+        mat4 tmpMatrix = rot;
         return new vec3(-tmpMatrix.get(0, 0), -tmpMatrix.get(1, 0), -tmpMatrix.get(2, 0));
     }
     
     public vec3 up(mat4 rot) {
-        mat4 tmpMatrix = this.mul(rot);
+        mat4 tmpMatrix = rot;
         return new vec3(tmpMatrix.get(0, 1), tmpMatrix.get(1, 1), tmpMatrix.get(2, 1));
     }
     
     public vec3 down(mat4 rot) {
-        mat4 tmpMatrix = this.mul(rot);
+        mat4 tmpMatrix = rot;
         return new vec3(-tmpMatrix.get(0, 1), -tmpMatrix.get(1, 1), -tmpMatrix.get(2, 1));
     }
 }

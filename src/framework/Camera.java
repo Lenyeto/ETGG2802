@@ -21,6 +21,10 @@ public class Camera{
     vec4 V = new vec4(0,1,0,0);
     vec4 W = new vec4(0,0,1,0);
     
+    public mat4 getViewMatrix() {
+        return viewMatrix;
+    }
+    
     public Camera(float aspect){
         aspect_ratio = aspect;
         fov_h = ((float) (fov_v * -1.5 * aspect)); //Needs to be fixed to support the 640x640 resolution, currently mainly works with 1920x1080 aspect ratio.

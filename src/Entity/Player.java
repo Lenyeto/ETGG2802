@@ -55,7 +55,7 @@ public class Player extends MeshEntity {
         projectileMesh = new Mesh("assets/column.obj.mesh");
     }
     
-    public void update(SDL_Event ev, Set<Integer> keys, float dtime) {
+    public void update(SDL_Event ev, float xrel, float yrel, Set<Integer> keys, float dtime) {
         super.update();
         if (keys.contains(key_forward)) {
             //setY(getY() + 2 * dtime);
@@ -63,38 +63,45 @@ public class Player extends MeshEntity {
 //            setX(getX() + forward.x * dtime);
 //            setY(getY() + forward.y * dtime);
 //            setZ(getZ() + forward.z * dtime);
-            setPos(super.getMatrix().getPos().add(super.getMatrix().forward().mul(dtime)));
+            setPos(super.getMatrix().getPos().add(super.getMatrix().forward(super.getRotation()).mul(dtime)));
         }
         if (keys.contains(key_backward)) {
-            setPos(super.getMatrix().getPos().add(super.getMatrix().backward().mul(dtime)));
+            setPos(super.getMatrix().getPos().add(super.getMatrix().backward(super.getRotation()).mul(dtime)));
         }
         if (keys.contains(key_left)) {
-            setPos(super.getMatrix().getPos().add(super.getMatrix().left().mul(dtime)));
+            setPos(super.getMatrix().getPos().add(super.getMatrix().left(super.getRotation()).mul(dtime)));
         }
         if (keys.contains(key_right)) {
-            setPos(super.getMatrix().getPos().add(super.getMatrix().right().mul(dtime)));
+            setPos(super.getMatrix().getPos().add(super.getMatrix().right(super.getRotation()).mul(dtime)));
         }
         if (keys.contains(key_shoot)) {
             //projectiles.add(new Projectile(getX(), getY(), getZ(), projectileMesh));
             //super.getMatrix().rotate(0, dtime, 0);
-            setPos(super.getMatrix().getPos().add(super.getMatrix().up().mul(dtime)));
+            setPos(super.getMatrix().getPos().add(super.getMatrix().up(super.getRotation()).mul(dtime)));
             //super.getMatrix().setRotate(0, 10, 0);
         }
         
         if (keys.contains(key_look_up)) {
             //super.getMatrix().setRotate(0, 20, 0);
             
-            super.setRotation(-50, 5, 5);
+            super.setRotation(-50, 0, 0);
         }
         if (keys.contains(key_look_down)) {
-            super.setRotation(50, 5, 5);
+            super.setRotation(50, 0, 0);
         }
         if (keys.contains(key_look_left)) {
             
+            cam.turn((float) (5*dtime*0.5));
         }
         if (keys.contains(key_look_right)) {
             
+            cam.turn((float) (-5*dtime*0.5));
         }
+        
+        //cam.turn((float) (-xrel * dtime * 0.7));
+        //cam.pitch((float) (-yrel * dtime * 0.7));
+        cam.axisTurn(cam.getViewMatrix().right(), -yrel * dtime);
+        cam.axisTurn(super.getMatrix().up(super.getRotation()), -xrel * dtime);
         
         for (Projectile p : projectiles) {
             p.update(dtime);
@@ -114,8 +121,10 @@ public class Player extends MeshEntity {
 //        System.out.println("Forward" + super.getMatrix().forward());
 //        System.out.println("Right" + super.getMatrix().right());
 //        System.out.println("Up" + super.getMatrix().up());
-        cam.setPosition(super.getMatrix().getPos().add(super.getMatrix().backward().mul(10)).add(super.getMatrix().right().mul(4)).add(super.getMatrix().up().mul(5)));
-        //cam.setPosition(super.getMatrix().getPos().add(super.getMatrix().backward().mul(2)).add(super.getMatrix().up().mul(1)));
+        //cam.setPosition(super.getMatrix().getPos().add(super.getMatrix().backward(super.getRotation()).mul(10)).add(super.getMatrix().right(super.getRotation()).mul(4)).add(super.getMatrix().up(super.getRotation()).mul(5)));
+        cam.setPosition(super.getMatrix().getPos().add(super.getMatrix().backward(super.getRotation())));
+        //cam.lookAt(super.getMatrix().getPos().add(super.getMatrix().backward(super.getRotation())), super.getMatrix().getPos().add(super.getMatrix().forward(super.getRotation())), super.getMatrix().up(super.getRotation()));
+//cam.setPosition(super.getMatrix().getPos().add(super.getMatrix().backward().mul(2)).add(super.getMatrix().up().mul(1)));
     }
 
     public Camera getCam() {

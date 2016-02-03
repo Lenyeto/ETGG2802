@@ -14,6 +14,7 @@ import framework.math3d.vec2;
 import framework.math3d.vec4;
 import framework.*;
 import Entity.Player;
+import JSDL.JSDL.SDL_MouseMotionEvent;
 import java.util.List;
 
 public class main{
@@ -112,11 +113,14 @@ public class main{
         
         
         
-        cam = new Camera((float)screenWidth/(float)screenHeight);
-        cam.lookAt( new vec3(0,0,5), new vec3(0,0,0), new vec3(0,1,0) );
+        //cam = new Camera((float)screenWidth/(float)screenHeight);
+        //cam.lookAt( new vec3(0,0,5), new vec3(0,0,0), new vec3(0,1,0) );
 
         prev = (float)(System.nanoTime()*1E-9);
 
+        float xrel = 0f;
+        float yrel = 0f;
+        
         SDL_Event ev=new SDL_Event();
         while(true){
             while(true){
@@ -128,10 +132,20 @@ public class main{
                     System.exit(0);
                 if( ev.type == SDL_MOUSEMOTION ){
                     //System.out.println("Mouse motion "+ev.motion.x+" "+ev.motion.y+" "+ev.motion.xrel+" "+ev.motion.yrel);
+                    
+                    xrel = ev.motion.xrel;
+                    yrel = ev.motion.yrel;
+                } else {
+                    xrel = 0f;
+                    yrel = 0f;
                 }
                 if( ev.type == SDL_KEYDOWN ){
                     //System.out.println("Key press "+ev.key.keysym.sym+" "+ev.key.keysym.sym);
+                    if (ev.key.keysym.sym == SDLK_ESCAPE) {
+                        System.exit(0);
+                    }
                     keys.add(ev.key.keysym.sym);
+                    
                 }
                 if( ev.type == SDL_KEYUP ){
                     keys.remove(ev.key.keysym.sym);
@@ -143,19 +157,19 @@ public class main{
             
             prev=now;
 
-            if( keys.contains(SDLK_w ))
-                cam.walk(0.5f*elapsed);
-            if( keys.contains(SDLK_s))
-                cam.walk(-0.5f*elapsed);
-            if( keys.contains(SDLK_a))
-                cam.turn(0.4f*elapsed);
-            if( keys.contains(SDLK_d))
-                cam.turn(-0.4f*elapsed);
-            if( keys.contains(SDLK_r))
-                cam.tilt(0.4f*elapsed);
-            if( keys.contains(SDLK_t))
-                cam.tilt(-0.4f*elapsed);
-            player.update(ev, keys, elapsed);
+//            if( keys.contains(SDLK_w ))
+//                cam.walk(0.5f*elapsed);
+//            if( keys.contains(SDLK_s))
+//                cam.walk(-0.5f*elapsed);
+//            if( keys.contains(SDLK_a))
+//                cam.turn(0.4f*elapsed);
+//            if( keys.contains(SDLK_d))
+//                cam.turn(-0.4f*elapsed);
+//            if( keys.contains(SDLK_r))
+//                cam.tilt(0.4f*elapsed);
+//            if( keys.contains(SDLK_t))
+//                cam.tilt(-0.4f*elapsed);
+            player.update(ev, xrel, yrel, keys, elapsed);
             
             //the fbo stuff is for later...
             //fbo1.bind();
@@ -185,6 +199,13 @@ public class main{
             usq.draw(blurprog);
             blurprog.setUniform("diffuse_texture",dummytex);
 */
+            if (SDL_GetMouseFocus() == win) {
+                SDL_SetRelativeMouseMode(1);
+            } else {
+                SDL_SetRelativeMouseMode(0);
+            }
+                
+            
 
             SDL_GL_SwapWindow(win);
 
