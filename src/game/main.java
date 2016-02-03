@@ -106,7 +106,7 @@ public class main{
 //            entities.add(player);
 //        }
         
-        player = new Player(0, 0, 0, "assets/tetraship.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, screenWidth, screenHeight);
+        player = new Player(0, 0, 0, "assets/tetraship.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, screenWidth, screenHeight);
         
         
         

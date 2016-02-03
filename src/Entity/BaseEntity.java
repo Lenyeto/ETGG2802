@@ -5,6 +5,8 @@
  */
 package Entity;
 
+import framework.math3d.vec3;
+
 /**
  *
  * @author buellw
@@ -44,5 +46,17 @@ public class BaseEntity {
     
     public void setZ(float i) {
         z = i;
+    }
+    
+    public void setPos(vec3 v) {
+        x = v.x;
+        y = v.y;
+        z = v.z;
+    }
+    
+    public void setPos(float x_, float y_, float z_) {
+        x = x_;
+        y = y_;
+        z = z_;
     }
 }

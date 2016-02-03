@@ -1,5 +1,9 @@
 package framework.math3d;
 
+import static framework.math3d.math3d.axisRotation;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+
 public class mat4{
     public float[] _M = new float[16];
     
@@ -162,7 +166,48 @@ public class mat4{
         _M[14] = z;
     }
     
-    public float  get(int r, int c){
+    
+// DOES NOT WORK
+//    public void rotate(float p, float y, float r) {
+//        _M[3] = p;
+//        _M[7] = y;
+//        _M[11] = r;
+//        
+//        mat4 M_ = axisRotation(getRow(1), y);
+//        vec4 u = getRow(0).mul(M_);
+//        vec4 w = getRow(2).mul(M_);
+//        float[] tmpArray1 = {u.x, getRow(1).x, w.x, _M[3], u.y, getRow(1).y, w.z, _M[7], u.z, getRow(1).z, w.z, _M[11], _M[12], _M[13], _M[14], _M[15]};
+//        this._M = tmpArray1;
+//        
+//        M_ = axisRotation(getRow(0), p);
+//        u = getRow(0);
+//        vec4 v = getRow(1).mul(M_);
+//        w = getRow(2).mul(M_);
+//        float[] tmpArray2 = {u.x, v.x, w.x, _M[3], u.y, v.y, w.z, _M[7], u.z, v.z, w.z, _M[11], _M[12], _M[13], _M[14], _M[15]};
+//        this._M = tmpArray2;
+//        
+//        M_ = axisRotation(getRow(2), r);
+//        u = getRow(0).mul(M_);
+//        v = getRow(1).mul(M_);
+//        w = getRow(2);
+//        float[] tmpArray3 = {u.x, v.x, w.x, _M[3], u.y, v.y, w.z, _M[7], u.z, v.z, w.z, _M[11], _M[12], _M[13], _M[14], _M[15]};
+//        this._M = tmpArray3;
+//    }
+//    
+//    public void setRotate(float p, float y, float r) {
+//        float[] tmpArray = {1, 0, 0, _M[3], 0, (float) cos(y), (float) -sin(y), _M[7], 0, (float) sin(y), (float) cos(y), _M[11], _M[12], _M[13], _M[14], _M[15]};
+//        _M = tmpArray;
+//    }
+    
+    public vec3 getPos() {
+        return new vec3(_M[12], _M[13], _M[14]);
+    }
+    
+    public vec3 getScale() {
+        return new vec3(_M[0], _M[5], _M[10]);
+    }
+    
+    public float get(int r, int c){
         return _M[r*4+c];
     }
     
@@ -170,6 +215,18 @@ public class mat4{
         return new mat4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
     }
     
+    public vec4 getRow(int r) {
+        if (r == 0) {
+            return new vec4(_M[0], _M[4], _M[8], _M[12]);
+        } else if (r == 1) {
+            return new vec4(_M[1], _M[5], _M[9], _M[13]);
+        } else if (r == 2) {
+            return new vec4(_M[2], _M[6], _M[10], _M[14]);
+        } else if (r == 3) {
+            return new vec4(_M[3], _M[7], _M[11], _M[15]);
+        }
+        throw new RuntimeException("Must be between 0 and 3.");
+    }
     
     //From TDL
     //FIXME: Need test case for this
@@ -251,6 +308,32 @@ public class mat4{
         }
         return m;
     }
+    
+    public vec3 forward() {
+        return new vec3(-this.get(1, 2), -this.get(2, 3), -this.get(3, 3));
+    }
+    
+    public vec3 backward() {
+        return new vec3(this.get(1, 2), this.get(2, 3), this.get(3, 3));
+    }
+    
+    public vec3 right() {
+        return new vec3(this.get(1, 1), this.get(2, 1), this.get(3, 1));
+    }
+    
+    public vec3 left() {
+        return new vec3(-this.get(1, 1), -this.get(2, 1), -this.get(3, 1));
+    }
+    
+    public vec3 up() {
+        return new vec3(this.get(1, 2), this.get(2, 2), this.get(3, 3));
+    }
+    
+    public vec3 down() {
+        return new vec3(-this.get(1, 2), -this.get(2, 2), -this.get(3, 3));
+    }
+    
+    
 }
 
 

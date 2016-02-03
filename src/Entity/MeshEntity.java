@@ -15,10 +15,11 @@ import framework.math3d.mat4;
 public class MeshEntity extends BaseEntity {
     private Mesh mesh;
     private mat4 worldMatrix = mat4.identity();
+    private boolean delete;
     
-    public MeshEntity(float x, float y, float z, String filename) {
+    public MeshEntity(float x, float y, float z, Mesh mesh_) {
         super(x, y, z);
-        mesh = new Mesh(filename);
+        mesh = mesh_;
     }
     
     public void setScale(float x) {
@@ -33,6 +34,12 @@ public class MeshEntity extends BaseEntity {
         worldMatrix.setPos(getX(), getY(), getZ());
     }
         
+    public mat4 getMatrix() {
+        return worldMatrix;
+    }
+    
+    
+    
     public void render(Program prog){ 
         
         prog.setUniform("worldMatrix", worldMatrix);
