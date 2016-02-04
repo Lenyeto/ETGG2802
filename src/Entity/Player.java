@@ -79,46 +79,47 @@ public class Player extends MeshEntity {
         
         //Checks what the player is pressing and applies the appropriate action / movement.
         if (keys.contains(key_forward)) {
-            setPos(super.getMatrix().getPos().add(super.getMatrix().forward(super.getRotation()).mul(dtime)));
+            setPos(super.getMatrix().getPos().add(super.getRotation().forward().mul(dtime)));
         }
         if (keys.contains(key_backward)) {
-            setPos(super.getMatrix().getPos().add(super.getMatrix().backward(super.getRotation()).mul(dtime)));
+            setPos(super.getMatrix().getPos().add(super.getRotation().backward().mul(dtime)));
         }
         if (keys.contains(key_left)) {
-            setPos(super.getMatrix().getPos().add(super.getMatrix().left(super.getRotation()).mul(dtime)));
+            setPos(super.getMatrix().getPos().add(super.getRotation().left().mul(dtime)));
         }
         if (keys.contains(key_right)) {
-            setPos(super.getMatrix().getPos().add(super.getMatrix().right(super.getRotation()).mul(dtime)));
+            setPos(super.getMatrix().getPos().add(super.getRotation().right().mul(dtime)));
         }
         if (keys.contains(key_shoot)) {
-            setPos(super.getMatrix().getPos().add(super.getMatrix().up(super.getRotation()).mul(dtime)));
+            //setPos(super.getMatrix().getPos().add(super.getRotation().up().mul(dtime)));
+            projectiles.add(new Projectile(super.getX(), super.getY(), super.getZ(), projectileMesh, new vec3(super.getPr(), super.getYr(), super.getRr())));
         }
+        
+        //setPos(super.getMatrix().getPos())
         
         //Sets the rotation to -50 degrees pitch, for testing purposes.
         if (keys.contains(key_look_up)) {
-            super.setRotation(-50, 0, 0);
+            //super.setRotation(super.getPr() + 50 * dtime, super.getYr(), super.getRr());
         }
         
         //Sets the rotation to 50 degrees pitch, for testin purposes.
         if (keys.contains(key_look_down)) {
-            super.setRotation(50, 0, 0);
+            //super.setRotation(super.getPr() + -50 * dtime, super.getYr(), super.getRr());
         }
         
         //Turns the player to the left.
         if (keys.contains(key_look_left)) {
-            
-            cam.turn((float) (5*dtime*0.5));
+            super.setRotation(0, super.getYr() + -50 * dtime, 0);
         }
         
         //Turns the player to the right.
         if (keys.contains(key_look_right)) {
-            
-            cam.turn((float) (-5*dtime*0.5));
+            super.setRotation(0, super.getYr() + 50 * dtime, 0);
         }
         
         //Allows for the camera to be controlled by the player, drifts, so that needs to be fixed.
-        cam.axisTurn(cam.getViewMatrix().right(), -yrel * dtime);
-        cam.axisTurn(super.getMatrix().up(super.getRotation()), -xrel * dtime);
+//        cam.axisTurn(cam.getViewMatrix().right(), -yrel * dtime);
+//        cam.axisTurn(super.getMatrix().up(super.getRotation()), -xrel * dtime);
         
         //Updates each of the projectiles in the projectiles list.
         for (Projectile p : projectiles) {
@@ -128,9 +129,10 @@ public class Player extends MeshEntity {
                 break;
             }
         }
-        
+        //setPos(super.getMatrix().getPos().add(super.getRotation().backward().mul(dtime)));
         //Constantly sets the camera position to be relative to the player position.
-        cam.setPosition(super.getMatrix().getPos().add(super.getMatrix().backward(super.getRotation())));
+        cam.setPosition(super.getMatrix().getPos().add(super.getRotation().backward().mul(5)).add(super.getRotation().up().mul(5)));
+        cam.lookAt(super.getMatrix().getPos().add(super.getRotation().backward().mul(5)).add(super.getRotation().up().mul(5)), super.getMatrix().getPos().add(super.getRotation().forward().mul(5)), super.getRotation().up());
     }
 
     //Returns the camera of the player.

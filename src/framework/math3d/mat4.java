@@ -187,6 +187,12 @@ public class mat4{
         return zm.mul(ym).mul(xm);
     }
     
+    
+    public vec3 mul(vec3 v) {
+        
+        return null;
+    }
+    
     //Returns the position of the matrix 4.
     public vec3 getPos() {
         return new vec3(_M[12], _M[13], _M[14]);
@@ -302,32 +308,34 @@ public class mat4{
     
     //Returns the forward vector.
     public vec3 forward() {
-        return new vec3(-this.get(0, 1), -this.get(1, 2), -this.get(2, 2));
+//        return new vec3(-this.get(0, 1), -this.get(1, 2), -this.get(2, 2));
+        return new vec3(-this.get(2, 0), -this.get(2, 1), -this.get(2, 2));
     }
     
     //Returns the backward vector.
     public vec3 backward() {
-        return new vec3(this.get(0, 1), this.get(1, 2), this.get(2, 2));
+        //return new vec3(this.get(0, 1), this.get(1, 2), this.get(2, 2));
+        return new vec3(this.get(2, 0), this.get(2, 1), this.get(2, 2));
     }
     
     //Returns the right vector.
     public vec3 right() {
-        return new vec3(this.get(0, 0), this.get(1, 0), this.get(2, 0));
+        return new vec3(this.get(0, 0), this.get(0, 1), this.get(0, 2));
     }
     
     //Returns the left vector.
     public vec3 left() {
-        return new vec3(-this.get(0, 0), -this.get(1, 0), -this.get(2, 0));
+        return new vec3(-this.get(0, 0), -this.get(0, 1), -this.get(0, 2));
     }
     
     //Returns the up vector.
     public vec3 up() {
-        return new vec3(this.get(0, 1), this.get(1, 1), this.get(2, 1));
+        return new vec3(this.get(1, 0), this.get(1, 1), this.get(1, 2));
     }
     
     //Returns the down vector.
     public vec3 down() {
-        return new vec3(-this.get(0, 1), -this.get(1, 1), -this.get(2, 1));
+        return new vec3(-this.get(1, 0), -this.get(1, 1), -this.get(1, 2));
     }
     
     //Returns the forward vector of the matrix that is passed.
@@ -338,31 +346,31 @@ public class mat4{
     
     //Returns the backward vector of the matrix that is passed.
     public vec3 backward(mat4 rot) {
-        mat4 tmpMatrix = rot;
+        mat4 tmpMatrix = rot.mul(this);
         return new vec3(tmpMatrix.get(0, 1), tmpMatrix.get(1, 2), tmpMatrix.get(2, 2));
     }
     
     //Returns the right vector of the matrix that is passed.
     public vec3 right(mat4 rot) {
-        mat4 tmpMatrix = rot;
+        mat4 tmpMatrix = rot.mul(this);
         return new vec3(tmpMatrix.get(0, 0), tmpMatrix.get(1, 0), tmpMatrix.get(2, 0));
     }
     
     //Returns the left vector of the matrix that is passed.
     public vec3 left(mat4 rot) {
-        mat4 tmpMatrix = rot;
+        mat4 tmpMatrix = rot.mul(this);
         return new vec3(-tmpMatrix.get(0, 0), -tmpMatrix.get(1, 0), -tmpMatrix.get(2, 0));
     }
     
     //Returns the up vector of the matrix that is passed.
     public vec3 up(mat4 rot) {
-        mat4 tmpMatrix = rot;
+        mat4 tmpMatrix = rot.mul(this);
         return new vec3(tmpMatrix.get(0, 1), tmpMatrix.get(1, 1), tmpMatrix.get(2, 1));
     }
     
     //Returns the down vector of the matrix that is passed.
     public vec3 down(mat4 rot) {
-        mat4 tmpMatrix = rot;
+        mat4 tmpMatrix = rot.mul(this);
         return new vec3(-tmpMatrix.get(0, 1), -tmpMatrix.get(1, 1), -tmpMatrix.get(2, 1));
     }
     

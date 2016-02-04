@@ -124,6 +124,8 @@ public class main{
         SDL_Event ev=new SDL_Event();
         while(true){
             while(true){
+                
+                
                 int rv = SDL_PollEvent(ev);
                 if( rv == 0 )
                     break;

@@ -56,7 +56,7 @@ public class MeshEntity extends BaseEntity {
     public Mesh getMesh(){
         return mesh;
     }
-    
+     
     public void update() {
         //Updates the entity's position.
         worldMatrix.setPos(getX(), getY(), getZ());
@@ -78,4 +78,6 @@ public class MeshEntity extends BaseEntity {
         prog.setUniform("worldMatrix", worldMatrix.getRotation(pr, yr, pr).mul(worldMatrix));
         mesh.draw(prog);
     }
+
+    
 }
