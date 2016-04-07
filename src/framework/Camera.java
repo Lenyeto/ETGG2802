@@ -21,6 +21,20 @@ public class Camera{
     vec4 V = new vec4(0,1,0,0);
     vec4 W = new vec4(0,0,1,0);
     
+    //returns the camera position. Added because cam.eye is used a lot and isn't public (I didn't want to change it)
+    public vec3 getCamPos(){
+        vec3 n = new vec3(eye.x, eye.y, eye.z);
+        return n;
+    }
+    public mat4 getCamMatrix(){
+        return viewMatrix;
+    }
+    public mat4 getProjMatrix(){
+        return projMatrix;
+    }
+    public void setCamMatrix(mat4 m){
+        viewMatrix = m;
+    }
     public mat4 getViewMatrix() {
         return viewMatrix;
     }
@@ -106,6 +120,9 @@ public class Camera{
         W = mul(-1.0,look);
         U = cross(look,up);
         V = cross(U,look);
+        W = framework.math3d.math3d.normalize(W);
+        U = framework.math3d.math3d.normalize(U);
+        V = framework.math3d.math3d.normalize(V);
         compute_view_matrix();
     }
     

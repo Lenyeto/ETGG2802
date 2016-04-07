@@ -16,14 +16,70 @@ import framework.*;
 import Entity.Player;
 import JSDL.JSDL.SDL_MouseMotionEvent;
 import java.util.List;
+import JSDL.JSDL.SDL_ControllerAxisEvent;
+import JSDL.JSDL.SDL_ControllerButtonEvent;
+import JSDL.JSDL.SDL_ControllerDeviceEvent;
+import org.lwjgl.input.Controllers;
+import org.lwjgl.input.Controller;
+import org.lwjgl.LWJGLException;
+import java.util.ArrayList;
+import Entity.Bullet;
+import Entity.PlanetEntity;
+import framework.Utility;
 
 public class main{
     
     
     public static void main(String[] args){
         
+        try{
+            Controllers.create();
+        } catch (LWJGLException e){
+            e.printStackTrace();
+        }
+        
+        Controllers.poll();
+        Controller controller = null;
+        System.out.println(Controllers.getControllerCount());
+        if (Controllers.getControllerCount() > 0) {
+            for(int i = 0; i < Controllers.getControllerCount(); i++)
+            {
+                
+                if (Controllers.getController(i).getName().equals("Controller (Xbox One For Windows)")){
+                    //System.out.println(controller.getName());
+                    controller = Controllers.getController(i);
+                    for(int j = 0; j < controller.getAxisCount(); j++)
+                    {
+                        System.out.println(j + ": " + controller.getAxisName(j));
+                    }
+                    for(int k = 0; k < controller.getButtonCount(); k++)
+                    {
+                        System.out.println(k+ ": " + controller.getButtonName(k));
+                    }
+                    System.out.println(controller.getName());
+                    break;
+                }
+                
+            }
+            
+        }
+        
+        //controller pressed/not pressed variables
+        boolean Start = false;
+        boolean AButton = false;
+        boolean RightBumper = false;
+        boolean LeftBumper = false;
+        //precision based controls
+        float rotate_forward = 0.0f;
+        float move_sideways = 0.0f;
+        float rotate_vertical = 0.0f;
+        float rotate_horizontal = 0.0f;
+        float move_forward = 0.0f;
+                
         int screenWidth = 512;
         int screenHeight = 512;
+        
+        
         
         if (args.length >= 2) {
                 String[] tmp = args[1].split("x");
@@ -31,6 +87,19 @@ public class main{
                     screenWidth = Integer.parseInt(tmp[0]);
                     screenHeight = Integer.parseInt(tmp[1]);
                 }
+        }
+        int windowedOption = 0;
+        if (args.length >= 3){
+            String tmp = args[2];
+            if (tmp.equals("Fullscreen")) {
+                windowedOption = SDL_WINDOW_FULLSCREEN;
+            } else if (tmp.equals("Fullscreen 2")) {
+                windowedOption = SDL_WINDOW_FULLSCREEN_DESKTOP;
+            } else if (tmp.equals("Windowed")) {
+                windowedOption = 0;
+            } else {
+                
+            }
         }
         
         SDL_Init(SDL_INIT_VIDEO);
@@ -42,7 +111,7 @@ public class main{
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,2);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
         SDL_GL_CreateContext(win);
-        
+        SDL_SetWindowFullscreen(win,windowedOption);     //SDL_WINDOW_FULLSCREEN_DESKTOP
         glDebugMessageControl(GL_DONT_CARE,GL_DONT_CARE,GL_DONT_CARE, 0,null, true );
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(
@@ -58,89 +127,90 @@ public class main{
         int vao = tmp[0];
         glBindVertexArray(vao);
 
-        glClearColor(0.2f,0.4f,0.6f,1.0f);
+        glClearColor(0.0f,0.0f,0.0f,1.0f);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+            
+        int i;
+        int p;
+        float bulletTime = 0.0f;
         Set<Integer> keys = new TreeSet<>();
         Camera cam;
         Program prog;
+        Program skyprog;
         Program blurprog;
+        Program glowprog;
+        Program explodeprog;
         float prev;
-        Mesh column;
         Framebuffer fbo1;
         Framebuffer fbo2;
         Player player;
-        Texture2D dummytex = new SolidTexture(GL_UNSIGNED_BYTE,0,0,0,0);
-        column = new Mesh("assets/column.obj.mesh");
+        List<PlanetEntity> planetList = new ArrayList<>();
+        List<Bullet> bulletList = new ArrayList<>();
+        PlanetEntity mercury;
+        PlanetEntity earth;
+        PlanetEntity moon;
+        PlanetEntity mars;
+        PlanetEntity death_star;
+        PlanetEntity jupiter;
+        Texture2D dummytex = new SolidTexture(GL_UNSIGNED_BYTE,0,0,0,0);   
+        String[] s = { "assets/skybox/stars_lf.jpg", "assets/skybox/stars_rt.jpg", "assets/skybox/stars_up.jpg",
+            "assets/skybox/stars_dn.jpg","assets/skybox/stars_fr.jpg", "assets/skybox/stars_bk.jpg"};
         
-
         fbo1 = new Framebuffer(screenWidth,screenHeight);
         fbo2 = new Framebuffer(screenWidth,screenHeight);
 
         prog = new Program("vs.txt","fs.txt");
+        skyprog = new Program("skyvs.txt","skyfs.txt");
+        
         blurprog = new Program("blurvs.txt","blurfs.txt");
+        explodeprog = new Program("explodevs.txt", "explodegs.txt", "explodefs.txt");
+        //glowprog = new Program("glowvs.txt","glowfs.txt");
+        skyprog.use();
+        SkyBox skybox = new SkyBox(s, skyprog);
+        //assets/tetraship.obj.mesh
+        //assets/tie_fighter/Creature.obj.mesh
+        player = new Player(0, 0, 0, "assets/tie_fighter/Creature.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, screenWidth, screenHeight);
+        mercury = new PlanetEntity(5.0f, -20.f, 2.0f, 3, .75f, new Mesh("assets/mercury.obj.mesh"), "mercury");
+        earth = new PlanetEntity(-7.0f, -25.0f, -10.0f, 6, 2.0f, new Mesh("assets/earth.obj.mesh"), "earth");
+        moon = new PlanetEntity(-6.0f, -19.0f, -11.0f, 2, .75f, new Mesh("assets/moon.obj.mesh"), "moon");
+        mars = new PlanetEntity(3.0f,0,0, 3, 1.0f, new Mesh("assets/mars.obj.mesh"), "mars");
+        jupiter = new PlanetEntity(-10.0f, 10.0f, -20.0f, 8, 3.0f, new Mesh("assets/jupiter.obj.mesh"), "jupiter");
+        death_star = new PlanetEntity(3.0f, 0.0f, -100.0f, 60, 30.0f, new Mesh("assets/death_star.obj.mesh"), "death star"); //that's no moon...
 
-        
-        
-        
-//        TreeSet<MeshEntity> entities = new TreeSet();
-//        if (args.length >= 1) {
-//            if (args[0] == "1") {
-//                player = new Player(0,0,0, "assets/tetraship.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d);
-//                entities.add(player);
-//            } else if (args[0] == "2") {
-//
-//            } else if (args[0] == "3") {
-//
-//            } else if (args[0] == "4"){
-//
-//            } else {
-//                System.exit(1);
-//            }
-//            
-//        } else {
-//            player = new Player(0,0,0, "assets/tetraship.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d);
-//            entities.add(player);
-//        }
-        
-        player = new Player(0, 0, 0, "assets/tetraship.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, screenWidth, screenHeight);
-        
-        
-        
-        
-        
-        //cam = new Camera((float)screenWidth/(float)screenHeight);
-        //cam.lookAt( new vec3(0,0,5), new vec3(0,0,0), new vec3(0,1,0) );
-
+        player.setScale(0.01f);
+        planetList.add(mercury); planetList.add(earth); planetList.add(moon); planetList.add(mars); planetList.add(jupiter); planetList.add(death_star);
         prev = (float)(System.nanoTime()*1E-9);
 
-        float xrel = 0f;
-        float yrel = 0f;
+        //EXPLODE TEST
+        float explode = 0.0f;
+        float dexplode = 0.0f;
+        
+        
         
         SDL_Event ev=new SDL_Event();
         while(true){
             while(true){
-                
-                
+                //assigns values to the controller buttons
+                if (controller != null) {
+                    controller.poll();
+                    Start = controller.isButtonPressed(7);
+                    AButton = controller.isButtonPressed(0);
+                    LeftBumper = controller.isButtonPressed(4);
+                    RightBumper = controller.isButtonPressed(5);
+                }
+                if (Start == true)
+                    System.exit(0);
+                                
                 int rv = SDL_PollEvent(ev);
                 if( rv == 0 )
                     break;
                 //System.out.println("Event "+ev.type);
                 if( ev.type == SDL_QUIT )
                     System.exit(0);
-                if( ev.type == SDL_MOUSEMOTION ){
-                    //System.out.println("Mouse motion "+ev.motion.x+" "+ev.motion.y+" "+ev.motion.xrel+" "+ev.motion.yrel);
-                    
-                    xrel = ev.motion.xrel;
-                    yrel = ev.motion.yrel;
-                } else {
-                    xrel = 0f;
-                    yrel = 0f;
-                }
                 if( ev.type == SDL_KEYDOWN ){
                     //System.out.println("Key press "+ev.key.keysym.sym+" "+ev.key.keysym.sym);
                     if (ev.key.keysym.sym == SDLK_ESCAPE) {
@@ -158,49 +228,167 @@ public class main{
             float elapsed = now-prev;
             
             prev=now;
+            
+            bulletTime += elapsed;
+            
+            if( keys.contains(SDLK_w ))
+                rotate_forward = -1.0f;
+            else if (keys.contains(SDLK_s))
+                rotate_forward = 1.0f;
+            else
+                rotate_forward = 0.0f;
+            LeftBumper = keys.contains(SDLK_a);
+            RightBumper = keys.contains(SDLK_d);
+            if (keys.contains(SDLK_q))
+                move_sideways = -1.0f;
+            else if (keys.contains(SDLK_e))
+                move_sideways = 1.0f;
+            else
+                move_sideways = 0.0f;
+            if (keys.contains(SDLK_LSHIFT))
+                move_forward = 1.0f;
+            else
+                move_forward = 0.0f;
+            if (keys.contains(SDLK_SPACE))
+            {
+                if (bulletTime >= 0.3f){
+                    Bullet b = new Bullet(player);
+                    bulletList.add(b);
+                    bulletTime = 0.0f;
+                }
+            }
+                
 
-//            if( keys.contains(SDLK_w ))
-//                cam.walk(0.5f*elapsed);
-//            if( keys.contains(SDLK_s))
-//                cam.walk(-0.5f*elapsed);
-//            if( keys.contains(SDLK_a))
-//                cam.turn(0.4f*elapsed);
-//            if( keys.contains(SDLK_d))
-//                cam.turn(-0.4f*elapsed);
-//            if( keys.contains(SDLK_r))
-//                cam.tilt(0.4f*elapsed);
-//            if( keys.contains(SDLK_t))
-//                cam.tilt(-0.4f*elapsed);
-            player.update(ev, xrel, yrel, keys, elapsed);
+            //assigns controller axis (sticks and triggers)
+            if (controller != null)
+            {
+                if(controller.getAxisValue(0) < -0.3f ||    //left stick up/down
+                   controller.getAxisValue(0) > 0.3f)
+                    rotate_forward = controller.getAxisValue(0); 
+                else
+                    rotate_forward = 0.0f;
+                if(controller.getAxisValue(1) < -0.3f ||    //left stick left/right
+                   controller.getAxisValue(1) > 0.3f)
+                    move_sideways = controller.getAxisValue(1);
+                else
+                    move_sideways = 0.0f;
+                if (controller.getAxisValue(5) != 0.0f)     //right trigger
+                    move_forward = controller.getAxisValue(5) + 1.0f;                
+                else
+                    move_forward = 0.0f;
+                    
+            }
+            player.update(move_forward, rotate_forward, move_sideways, LeftBumper, RightBumper, elapsed);
+            
+            
+            float maxexplode = 1f;
+            
+            
+            if( keys.contains(SDLK_x) && dexplode == 0.0f )
+                dexplode = 0.5f;
+            explode += dexplode * elapsed;
+            if (explode > maxexplode) {
+                dexplode = -dexplode;
+                explode = maxexplode;
+            } else if (explode < 0.0f) {
+                explode = 0.0f;
+                dexplode = 0.0f;
+            }
+            
+            
+            
+            
+            UnitSquare usq = new UnitSquare();
+            
             
             //the fbo stuff is for later...
-            //fbo1.bind();
+            fbo1.bind();
             
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             prog.use();
             prog.setUniform("lightPos",new vec3(50,50,50) );
-            //cam.draw(prog);
             player.getCam().draw(prog);
             prog.setUniform("worldMatrix",mat4.identity());
-            column.draw(prog);
-            
-//            for (MeshEntity e : entities) {
-//                e.render(prog);
-//            }
             
             player.render(prog);
             
+            for (i = 0; i < bulletList.size(); i++)
+            {
+                bulletList.get(i).update(player,elapsed);
+                bulletList.get(i).render(prog);
+                if (!bulletList.get(i).isActive)
+                    bulletList.remove(bulletList.get(i));
+            }
             
-            //fbo1.unbind();
-
-            //this is also for later...
-/*
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            explodeprog.use();
+            
+            explodeprog.setUniform("lightPos",new vec3(50,50,50) );
+            explodeprog.setUniform("worldMatrix",mat4.identity());
+            explodeprog.setUniform("projMatrix", player.getCam().getProjMatrix());
+            explodeprog.setUniform("explode",explode);
+            player.getCam().draw(explodeprog);
+            for(p = 0; p < planetList.size(); p++)
+            {
+                planetList.get(p).render(explodeprog);
+                for (i = 0; i < bulletList.size(); i++)
+                {
+                    if(Utility.Collision(planetList.get(p).mPosition, planetList.get(p).size, bulletList.get(i).mPosition, bulletList.get(i).size))
+                    {
+                        if (!planetList.get(p).mName.equals("death star"))
+                        {
+                            bulletList.remove(bulletList.get(i));
+                            planetList.get(p).mHealth--;
+                            if(planetList.get(p).mHealth <= 0 && dexplode == 0.0f)
+                                dexplode = 0.5f;
+                                //planetList.remove(planetList.get(p));
+                        }
+                    }
+                }
+            }
+            
+            skyprog.use();
+            skyprog.setUniform("eyePos", player.mPosition);
+            skyprog.setUniform("projMatrix", player.getCam().getProjMatrix());
+            skyprog.setUniform("viewMatrix", player.getCam().getViewMatrix());
+            player.getCam().draw(skyprog);
+            skybox.draw(skyprog);
+            
+            
+            
+            
+            
+            
+            
+            fbo1.unbind();
+            
+           
+            fbo2.bind();
+            
             blurprog.use();
+            //float ayy = (int)player.getSpeed()>>4;
+            float ayy = 0;
+            
+            
+            blurprog.setUniform("boxwidth",ayy);  
             blurprog.setUniform("diffuse_texture",fbo1.texture);
+            blurprog.setUniform("blurdelta",new vec2(1.0f,0.0f));
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             usq.draw(blurprog);
+            
+            
+            fbo2.unbind();
+            
+            
+            
             blurprog.setUniform("diffuse_texture",dummytex);
-*/
+            
+            blurprog.setUniform("diffuse_texture",fbo2.texture);
+            blurprog.setUniform("blurdelta",new vec2(0.0f,1.0f));
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            usq.draw(blurprog);
+            player.getCam().draw(blurprog);
+            
+            
             if (SDL_GetMouseFocus() == win) {
                 SDL_SetRelativeMouseMode(1);
             } else {

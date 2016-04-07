@@ -3,7 +3,7 @@ package framework;
 import framework.math3d.vec2;
 import framework.math3d.vec3;
 import framework.math3d.vec4;
-
+import framework.math3d.math3d;
 
 /**
  *
@@ -11,7 +11,13 @@ import framework.math3d.vec4;
  */
 public class Utility {
 
-    
+    public static Boolean Collision(vec3 s1, float rad1, vec3 s2, float rad2)
+    {
+        vec3 v = s1.sub(s2);
+        float cdist = v.dot(v);
+        float rsum = rad1 + rad2;
+        return (rsum * rsum >= cdist);
+    }
     
     public static double Dist(Object... args){
         double[] v1 = new double[3];
@@ -63,12 +69,8 @@ public class Utility {
         else
             throw new RuntimeException("Bad type for distance computation");
         
-        
-        
+
         double d = Math.sqrt(((v2[0]-v1[0])+(v2[1]-v1[1])+(v2[2]-v1[2])));
-        
-        
-        
         return d;
         
         

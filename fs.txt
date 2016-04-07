@@ -11,14 +11,17 @@ in vec3 v_pw;
 out vec4 color;
 
 void main(){
+	float f = 1.0f;
     vec4 tc = texture(diffuse_texture,v_texcoord);
     vec3 N = normalize(v_normal);
     vec3 V = normalize(eyePos - v_pw);
     vec3 L = (lightPos - v_pw);
     float Ldist = length(L);
     L = 1.0/Ldist * L;
-    float dp = dot(L,N);
-    dp = clamp(dp,0.0,1.0);
+    //float dp = dot(L,N);
+    //dp = clamp(dp,0.0,1.0);
+	float dp  = (dot(N,L) + f)/(1.0f + f);
+	//float dp = 1.0f;
     vec3 R = reflect(-L,N);
     float sp = dot(V,R);
     sp *= sign(dp);

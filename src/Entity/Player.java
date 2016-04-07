@@ -13,6 +13,8 @@ import static JGL.JGL.*;
 import framework.Camera;
 import framework.math3d.mat4;
 import framework.math3d.vec3;
+import static java.lang.Math.abs;
+import static java.lang.Math.sin;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
@@ -33,6 +35,10 @@ public class Player extends MeshEntity {
     private int key_look_left;
     private int key_look_up;
     private int key_look_down;
+    private float speed_multiplier;
+    private float speed = 0;
+    private float rotate_speed = 2.0f;
+    private vec3 rotateVec = new vec3(0,0,1);
     
     //Creates a camera that the palyer uses.
     private Camera cam;
@@ -40,8 +46,7 @@ public class Player extends MeshEntity {
     //Creates a mesh variable that will hold the mesh of the projectiles that are fired from the player.
     private Mesh projectileMesh;
     
-    //Creates a list to hold all the projectiles for the player.
-    List<Projectile> projectiles;
+    float tmpTime = 0;
     
     public Player(float x, float y, float z, String filename, int forward, int backward, int key_strafe_left, int key_strafe_right, int shoot, int lookRight, int lookLeft, int lookUp, int lookDown, float screenWidth, float screenHeight) {
         //Obvious
@@ -51,7 +56,7 @@ public class Player extends MeshEntity {
         cam = new Camera(screenWidth/screenHeight);
         
         //Sets the initial position (currently not relevent as it ends up being set to a position around the players mesh.
-        cam.setPosition(new vec3(x, y, z));
+        cam.setPosition(new vec3(x, y, z + 1.0f));
         
         //Sets the camera to look at a certain location in respect to the mesh.
         cam.lookAt( new vec3(x + 0,y + 0,z + 5), new vec3(x + 0,y + 0,z + 0), new vec3(x + 0,y + 1,z + 0) );
@@ -67,72 +72,61 @@ public class Player extends MeshEntity {
         this.key_look_right = lookRight;
         this.key_look_left = lookLeft;
         
-        //Creates a new empty list for the projectiles.
-        projectiles = new LinkedList<>();
         
         //Sets the projectile mesh.
         projectileMesh = new Mesh("assets/column.obj.mesh");
+        
+        //Sets the speed multiplier.
+        this.speed_multiplier = 800.0f;
     }
-    
-    public void update(SDL_Event ev, float xrel, float yrel, Set<Integer> keys, float dtime) {
-        super.update();
+                     //right-trigger       left-stick up/down    left-stick left/right   obvious       again, obvious
+    public void update(float move_forward, float rotate_forward, float move_sideways, boolean LBumper, boolean RBumper, float dtime) {
+        //rotates the ship left and right
+        if (RBumper == true){
+            rotateVec = super.getMatrix().up();
+            rotate(rotateVec, -abs(rotate_speed - ((int)speed >> 7))  * dtime);     //bit shifting (dividing by 128)
+        }
+        else if(LBumper == true){
+            rotateVec = super.getMatrix().up();
+            rotate(rotateVec, abs(rotate_speed - ((int)speed >> 7)) * dtime);       //bit shifting (dividing by 128)
+        }
+        //rotates the ship up and down
+        if (rotate_forward != 0.0f){
+            rotateVec = super.getMatrix().right();
+            rotate(rotateVec, rotate_forward * abs(rotate_speed - ((int)speed >> 7)) * dtime);
+        }
+        //propels the ship forward faster
         
-        //Checks what the player is pressing and applies the appropriate action / movement.
-        if (keys.contains(key_forward)) {
-            setPos(super.getMatrix().getPos().add(super.getRotation().forward().mul(dtime)));
-        }
-        if (keys.contains(key_backward)) {
-            setPos(super.getMatrix().getPos().add(super.getRotation().backward().mul(dtime)));
-        }
-        if (keys.contains(key_left)) {
-            setPos(super.getMatrix().getPos().add(super.getRotation().left().mul(dtime)));
-        }
-        if (keys.contains(key_right)) {
-            setPos(super.getMatrix().getPos().add(super.getRotation().right().mul(dtime)));
-        }
-        if (keys.contains(key_shoot)) {
-            //setPos(super.getMatrix().getPos().add(super.getRotation().up().mul(dtime)));
-            projectiles.add(new Projectile(super.getX(), super.getY(), super.getZ(), projectileMesh, new vec3(super.getPr(), super.getYr(), super.getRr())));
-        }
+        tmpTime += dtime;
+        //move_forward = abs((float) sin(tmpTime));
         
-        //setPos(super.getMatrix().getPos())
-        
-        //Sets the rotation to -50 degrees pitch, for testing purposes.
-        if (keys.contains(key_look_up)) {
-            //super.setRotation(super.getPr() + 50 * dtime, super.getYr(), super.getRr());
+        if (move_forward != 0.0f)
+            speed = (move_forward * speed_multiplier);
+        else
+            speed = 50.0f;
+        //slightly rotates the ship and moves it sideways
+        if (move_sideways != 0.0f){
+            rotateVec = getMatrix().forward();
+            rotate(rotateVec, move_sideways * abs(rotate_speed - ((int)speed >> 7)) * dtime);
         }
+        //moves the ship forward and sideways based on its relative position/direction
+        vec3 leftVec = mPosition.sub(getMatrix().left().mul(move_sideways * 2.0f * dtime));     //calculates the x direction...
+        vec3 forwardVec = leftVec.sub(getMatrix().backward().mul(speed * dtime));    //calculates the z direction...
+        super.setPos(forwardVec.x, forwardVec.y, forwardVec.z);                                 //sets that shit
         
-        //Sets the rotation to 50 degrees pitch, for testin purposes.
-        if (keys.contains(key_look_down)) {
-            //super.setRotation(super.getPr() + -50 * dtime, super.getYr(), super.getRr());
-        }
-        
-        //Turns the player to the left.
-        if (keys.contains(key_look_left)) {
-            super.setRotation(0, super.getYr() + -50 * dtime, 0);
-        }
-        
-        //Turns the player to the right.
-        if (keys.contains(key_look_right)) {
-            super.setRotation(0, super.getYr() + 50 * dtime, 0);
-        }
         
         //Allows for the camera to be controlled by the player, drifts, so that needs to be fixed.
-//        cam.axisTurn(cam.getViewMatrix().right(), -yrel * dtime);
-//        cam.axisTurn(super.getMatrix().up(super.getRotation()), -xrel * dtime);
+            cam.axisTurn(cam.getViewMatrix().right(), -200.0f * dtime);
+            //cam.axisTurn(super.getMatrix().up(super.getRotation()), -xrel * dtime);
         
-        //Updates each of the projectiles in the projectiles list.
-        for (Projectile p : projectiles) {
-            p.update(dtime);
-            if (p.timeToDelete <= 0) {
-                projectiles.remove(p);
-                break;
-            }
-        }
-        //setPos(super.getMatrix().getPos().add(super.getRotation().backward().mul(dtime)));
+        
         //Constantly sets the camera position to be relative to the player position.
-        cam.setPosition(super.getMatrix().getPos().add(super.getRotation().backward().mul(5)).add(super.getRotation().up().mul(5)));
-        cam.lookAt(super.getMatrix().getPos().add(super.getRotation().backward().mul(5)).add(super.getRotation().up().mul(5)), super.getMatrix().getPos().add(super.getRotation().forward().mul(5)), super.getRotation().up());
+        vec3 dank = getMatrix().forward();
+        vec3 memes = getMatrix().down();
+        vec3 cpos = mPosition.sub(dank.mul(200.0f)).sub(memes.mul(100.0f));
+        cam.lookAt(cpos, super.getMatrix().getPos(), super.getMatrix().up());
+
+        
     }
 
     //Returns the camera of the player.
@@ -143,20 +137,9 @@ public class Player extends MeshEntity {
     //Renders the player and the projectiles.
     public void render(Program prog) {
         super.render(prog);
-        for (Projectile p : projectiles) {
-            p.render(prog);
-        }
+    }
+    
+    public float getSpeed(){
+        return this.speed;
     }
 }
-
-/*
-def draw(self,prog):
-
-
-        prog.setUniform("worldMatrix",self.matrix)
-        prog.setUniform("viewMatrix",self.viewIdentity)
-        prog.setUniform("projMatrix",self.viewIdentity)
-        prog.setUniform("alpha",1)
-        self.M.draw(prog)
-
-*/

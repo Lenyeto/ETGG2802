@@ -1,0 +1,3 @@
+- Bullets weren't traveling. Not sure where the code for that went, so I just reimplemented it.
+- Created a shotTimer variable to ensure bullets cannot be spammed. Currently set at 0.5
+- Adjusted bullet speed and despawn timers

@@ -21,10 +21,12 @@ public class launcher implements ActionListener{
     private JButton _start_game;
     private JComboBox _resolution_selection;
     private JComboBox _player_count_selection;
+    private JComboBox _windowed_option_selection;
     private JFrame _frame;
     private menuCanvas _panel;
     private String[] resolutionChoices = {"640x640", "1280x720", "1920x1080", "2160x1440", "3840x2160"};
     private String[] playerChoices = {"1", "2", "3", "4"};
+    private String[] windowedOptions = {"Windowed", "Fullscreen", "Fullscreen 2"};
     
     
     public launcher() {
@@ -56,6 +58,10 @@ public class launcher implements ActionListener{
         _playercount_label.setSize(200, 20);
         _playercount_label.setLocation(0, 40);
         
+        JLabel _windowed_option_label = new JLabel("Window Option");
+        _windowed_option_label.setSize(200, 20);
+        _windowed_option_label.setLocation(0, 60);
+        
         JLabel _blank = new JLabel("");
         
         _resolution_selection = new JComboBox(resolutionChoices);
@@ -70,11 +76,19 @@ public class launcher implements ActionListener{
         _player_count_selection.setSize(100, 20);
         _player_count_selection.setLocation(100, 40);
         
+        _windowed_option_selection = new JComboBox(windowedOptions);
+        _windowed_option_selection.setSelectedIndex(0);
+        _windowed_option_selection.addActionListener(this);
+        _windowed_option_selection.setSize(100, 20);
+        _windowed_option_selection.setLocation(100, 60);
+        
         _frame.add(_start_game);
         _frame.add(_resolution_selection);
         _frame.add(_resolution_label);
         _frame.add(_player_count_selection);
         _frame.add(_playercount_label);
+        _frame.add(_windowed_option_selection);
+        _frame.add(_windowed_option_label);
         _frame.add(_blank);
         
         
@@ -89,6 +103,7 @@ public class launcher implements ActionListener{
     public void actionPerformed(ActionEvent ae) {
         _panel.setRes((String) _resolution_selection.getSelectedItem());
         _panel.setPlayerCount((String) _player_count_selection.getSelectedItem());
+        _panel.setWindowedOption((String) _windowed_option_selection.getSelectedItem());
     }
 }
 
@@ -100,16 +115,18 @@ class menuCanvas extends JPanel implements ActionListener {
     
     private String resolution = "1920x1080";
     private String playerCount = "1";
+    private String windowedOption = "Windowed";
     
     public void actionPerformed(ActionEvent ae) {
         JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
         
         
         
-        String[] s = new String[2];
+        String[] s = new String[3];
         
         s[0] = playerCount;
         s[1] = resolution;
+        s[2] = windowedOption;
         topFrame.setVisible(false);
         main game = new main();
         game.main(s);
@@ -124,6 +141,10 @@ class menuCanvas extends JPanel implements ActionListener {
     
     public void setPlayerCount(String s) {
         playerCount = s;
+    }
+    
+    public void setWindowedOption(String s) {
+        windowedOption = s;
     }
     
     public void paint(Graphics g) {
