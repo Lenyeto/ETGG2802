@@ -14,11 +14,8 @@ import framework.math3d.vec2;
 import framework.math3d.vec4;
 import framework.*;
 import Entity.Player;
-import JSDL.JSDL.SDL_MouseMotionEvent;
+import JSDL.JSDL;
 import java.util.List;
-import JSDL.JSDL.SDL_ControllerAxisEvent;
-import JSDL.JSDL.SDL_ControllerButtonEvent;
-import JSDL.JSDL.SDL_ControllerDeviceEvent;
 import org.lwjgl.input.Controllers;
 import org.lwjgl.input.Controller;
 import org.lwjgl.LWJGLException;
@@ -38,37 +35,28 @@ public class main{
             e.printStackTrace();
         }
         
-        Controllers.poll();
-        Controller controller = null;
-        System.out.println(Controllers.getControllerCount());
-        if (Controllers.getControllerCount() > 0) {
-            for(int i = 0; i < Controllers.getControllerCount(); i++)
-            {
-                
-                if (Controllers.getController(i).getName().equals("Controller (Xbox One For Windows)")){
-                    //System.out.println(controller.getName());
-                    controller = Controllers.getController(i);
-                    for(int j = 0; j < controller.getAxisCount(); j++)
-                    {
-                        System.out.println(j + ": " + controller.getAxisName(j));
-                    }
-                    for(int k = 0; k < controller.getButtonCount(); k++)
-                    {
-                        System.out.println(k+ ": " + controller.getButtonName(k));
-                    }
-                    System.out.println(controller.getName());
+        long controller = 0;
+        
+        SDL_Init(SDL_INIT_GAMECONTROLLER);
+        for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+            if (SDL_IsGameController(i) > 0) {
+                controller = SDL_GameControllerOpen(i);
+                if (controller > 0) {
                     break;
+                } else {
+                    System.out.println("Coult not open game controller");
                 }
-                
             }
-            
         }
         
+        
+        
+        
         //controller pressed/not pressed variables
-        boolean Start = false;
-        boolean AButton = false;
-        boolean RightBumper = false;
-        boolean LeftBumper = false;
+        int Start = 0;
+        int AButton = 0;
+        int RightBumper = 0;
+        int LeftBumper = 0;
         //precision based controls
         float rotate_forward = 0.0f;
         float move_sideways = 0.0f;
@@ -195,14 +183,14 @@ public class main{
         while(true){
             while(true){
                 //assigns values to the controller buttons
-                if (controller != null) {
-                    controller.poll();
-                    Start = controller.isButtonPressed(7);
-                    AButton = controller.isButtonPressed(0);
-                    LeftBumper = controller.isButtonPressed(4);
-                    RightBumper = controller.isButtonPressed(5);
-                }
-                if (Start == true)
+                
+                Start = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
+                AButton = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
+                LeftBumper = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+                RightBumper = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+                
+                
+                if (Start > 0)
                     System.exit(0);
                                 
                 int rv = SDL_PollEvent(ev);
@@ -237,8 +225,8 @@ public class main{
                 rotate_forward = 1.0f;
             else
                 rotate_forward = 0.0f;
-            LeftBumper = keys.contains(SDLK_a);
-            RightBumper = keys.contains(SDLK_d);
+            //LeftBumper = keys.contains(SDLK_a);
+            //RightBumper = keys.contains(SDLK_d);
             if (keys.contains(SDLK_q))
                 move_sideways = -1.0f;
             else if (keys.contains(SDLK_e))
@@ -258,26 +246,11 @@ public class main{
                 }
             }
                 
-
-            //assigns controller axis (sticks and triggers)
-            if (controller != null)
-            {
-                if(controller.getAxisValue(0) < -0.3f ||    //left stick up/down
-                   controller.getAxisValue(0) > 0.3f)
-                    rotate_forward = controller.getAxisValue(0); 
-                else
-                    rotate_forward = 0.0f;
-                if(controller.getAxisValue(1) < -0.3f ||    //left stick left/right
-                   controller.getAxisValue(1) > 0.3f)
-                    move_sideways = controller.getAxisValue(1);
-                else
-                    move_sideways = 0.0f;
-                if (controller.getAxisValue(5) != 0.0f)     //right trigger
-                    move_forward = controller.getAxisValue(5) + 1.0f;                
-                else
-                    move_forward = 0.0f;
-                    
-            }
+            
+            rotate_forward = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
+            move_sideways = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
+            
+            
             player.update(move_forward, rotate_forward, move_sideways, LeftBumper, RightBumper, elapsed);
             
             

@@ -80,13 +80,13 @@ public class Player extends MeshEntity {
         this.speed_multiplier = 800.0f;
     }
                      //right-trigger       left-stick up/down    left-stick left/right   obvious       again, obvious
-    public void update(float move_forward, float rotate_forward, float move_sideways, boolean LBumper, boolean RBumper, float dtime) {
+    public void update(float move_forward, float rotate_forward, float move_sideways, int LBumper, int RBumper, float dtime) {
         //rotates the ship left and right
-        if (RBumper == true){
+        if (RBumper > 0){
             rotateVec = super.getMatrix().up();
             rotate(rotateVec, -abs(rotate_speed - ((int)speed >> 7))  * dtime);     //bit shifting (dividing by 128)
         }
-        else if(LBumper == true){
+        else if(LBumper > 0){
             rotateVec = super.getMatrix().up();
             rotate(rotateVec, abs(rotate_speed - ((int)speed >> 7)) * dtime);       //bit shifting (dividing by 128)
         }
