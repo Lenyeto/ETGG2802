@@ -3,14 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/ETGG2802%20-%20Graphics%202/Project%20Files/Project%20Files/src/Physics/HitSphere.java</file>
-            <file>file:/E:/ETGG2802%20-%20Graphics%202/Project%20Files/Project%20Files/src/framework/Utility.java</file>
-            <file>file:/E:/ETGG2802%20-%20Graphics%202/Project%20Files/Project%20Files/src/framework/Grid.java</file>
-            <file>file:/E:/ETGG2802%20-%20Graphics%202/Project%20Files/Project%20Files/src/Entity/MeshEntity.java</file>
-            <file>file:/E:/ETGG2802%20-%20Graphics%202/Project%20Files/Project%20Files/src/game/main.java</file>
-            <file>file:/E:/ETGG2802%20-%20Graphics%202/Project%20Files/Project%20Files/src/Entity/PlanetEntity.java</file>
-            <file>file:/E:/ETGG2802%20-%20Graphics%202/Project%20Files/Project%20Files/src/Entity/Player.java</file>
-            <file>file:/E:/ETGG2802%20-%20Graphics%202/Project%20Files/Project%20Files/src/Entity/Bullet.java</file>
+            <file>file:/Z:/gamestuff/ETGG2802/src/game/main.java</file>
+            <file>file:/Z:/gamestuff/ETGG2802/src/Entity/PlanetEntity.java</file>
+            <file>jar:file:/Z:/gamestuff/ETGG2802/JGLSDL.jar!/JSDL/JSDL.java</file>
+            <file>file:/Z:/gamestuff/ETGG2802/src/framework/Mesh.java</file>
+            <file>file:/Z:/gamestuff/ETGG2802/src/Entity/MeshEntity.java</file>
+            <file>file:/Z:/gamestuff/ETGG2802/src/framework/Texture.java</file>
+            <file>file:/Z:/gamestuff/ETGG2802/src/framework/Camera.java</file>
+            <file>file:/Z:/gamestuff/ETGG2802/src/Entity/Player.java</file>
         </group>
     </open-files>
 </project-private>

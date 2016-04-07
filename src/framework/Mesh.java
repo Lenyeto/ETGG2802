@@ -20,6 +20,7 @@ public class Mesh {
     Texture texture;
     Texture spec_texture;
     Texture emit_texture;
+    public Texture normal_map;
     String filename="(none)";
     int numvertices;
     int floats_per_vertex;
@@ -197,6 +198,8 @@ public class Mesh {
             prog.setUniform("emit_texture",this.texture);
         if( this.spec_texture != null )
             prog.setUniform("spec_texture",this.texture);
+        if ( this.normal_map != null )
+            prog.setUniform("normalMap", this.normal_map);
         
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES,this.numindices,this.itype,0);

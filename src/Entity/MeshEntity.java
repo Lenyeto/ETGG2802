@@ -10,7 +10,7 @@ import java.lang.Math;
 
 public class MeshEntity{
     //Creates a variable for the entity's mesh.
-    private Mesh mesh;
+    public Mesh mesh;
     
     //Creates a new world matrix for the entity for positon, scale, and rotation purposes.
     private mat4 worldMatrix = mat4.identity();

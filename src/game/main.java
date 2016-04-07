@@ -36,6 +36,7 @@ public class main{
         }
         
         long controller = 0;
+        long controllers[] = new long[4];
         
         SDL_Init(SDL_INIT_GAMECONTROLLER);
         for (int i = 0; i < SDL_NumJoysticks(); ++i) {
@@ -131,6 +132,7 @@ public class main{
         Program skyprog;
         Program blurprog;
         Program glowprog;
+        Program bumpprog;
         Program explodeprog;
         float prev;
         Framebuffer fbo1;
@@ -155,6 +157,7 @@ public class main{
         skyprog = new Program("skyvs.txt","skyfs.txt");
         
         blurprog = new Program("blurvs.txt","blurfs.txt");
+        bumpprog = new Program("bumpvs.txt", "bumpfs.txt");
         explodeprog = new Program("explodevs.txt", "explodegs.txt", "explodefs.txt");
         //glowprog = new Program("glowvs.txt","glowfs.txt");
         skyprog.use();
@@ -164,6 +167,7 @@ public class main{
         player = new Player(0, 0, 0, "assets/tie_fighter/Creature.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, screenWidth, screenHeight);
         mercury = new PlanetEntity(5.0f, -20.f, 2.0f, 3, .75f, new Mesh("assets/mercury.obj.mesh"), "mercury");
         earth = new PlanetEntity(-7.0f, -25.0f, -10.0f, 6, 2.0f, new Mesh("assets/earth.obj.mesh"), "earth");
+        earth.mesh.normal_map = new ImageTexture("assets/earth_normal.jpg");
         moon = new PlanetEntity(-6.0f, -19.0f, -11.0f, 2, .75f, new Mesh("assets/moon.obj.mesh"), "moon");
         mars = new PlanetEntity(3.0f,0,0, 3, 1.0f, new Mesh("assets/mars.obj.mesh"), "mars");
         jupiter = new PlanetEntity(-10.0f, 10.0f, -20.0f, 8, 3.0f, new Mesh("assets/jupiter.obj.mesh"), "jupiter");
@@ -327,7 +331,11 @@ public class main{
             skybox.draw(skyprog);
             
             
-            
+            bumpprog.use();
+            bumpprog.setUniform("lightvec",new vec3(50,50,50) );
+            bumpprog.setUniform("CAMERA_POSITION", player.mPosition);
+            player.getCam().draw(bumpprog);
+            planetList.get(1).render(bumpprog);
             
             
             
