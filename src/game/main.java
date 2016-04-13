@@ -403,6 +403,7 @@ public class main{
             for (Framebuffer[] fb : fbos) {
                 
                 //the fbo stuff is for later...
+                System.out.println(cur_player);
                 fb[0].bind();
 
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -465,11 +466,12 @@ public class main{
                 //player.getCam().draw(bumpprog);
                 //planetList.get(1).render(bumpprog);
 
-
+                //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
                 fb[0].unbind();
 
+                
 
                 fb[1].bind();
 
@@ -477,29 +479,31 @@ public class main{
                 //float ayy = (int)player.getSpeed()>>4;
                 float ayy = 0;
 
-
+                
                 blurprog.setUniform("boxwidth",ayy);  
-                blurprog.setUniform("diffuse_texture",fb[1].texture);
+                blurprog.setUniform("diffuse_texture",fb[0].texture);
                 blurprog.setUniform("blurdelta",new vec2(1.0f,0.0f));
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 usq.draw(blurprog);
-
+                
 
                 fb[1].unbind();
 
 
 
-                blurprog.setUniform("diffuse_texture",dummytex);
+                //blurprog.setUniform("diffuse_texture",dummytex);
 
-                blurprog.setUniform("diffuse_texture",fb[1].texture);
-                blurprog.setUniform("blurdelta",new vec2(0.0f,1.0f));
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                usq.draw(blurprog);
-                players[cur_player].getCam().draw(blurprog);
+                //blurprog.setUniform("diffuse_texture",fb[1].texture);
+                //blurprog.setUniform("blurdelta",new vec2(0.0f,1.0f));
+                //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                //usq.draw(blurprog);
+                //players[cur_player].getCam().draw(blurprog);
 
                 
                 cur_player++;
             }
+            
+            //fbo1.bind();
             
             stitchprog.use();
             stitchprog.setUniform("diffuse_one", fbos[0][0].texture);
@@ -513,12 +517,12 @@ public class main{
                 stitchprog.setUniform("diffuse_three", fbos[2][0].texture);
                 stitchprog.setUniform("diffuse_four", fbos[3][0].texture);
             }
-            stitchprog.setUniform("num_screens", playerCount);
-            stitchprog.setUniform("screenWidth", screenWidth);
-            stitchprog.setUniform("screenHeight", screenHeight);
-            
+            stitchprog.setUniform("num_screens", (float)playerCount);
+            stitchprog.setUniform("screenWidth", (float)screenWidth);
+            stitchprog.setUniform("screenHeight", (float)screenHeight);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             usq.draw(stitchprog);
-            
+            //fbo1.unbind();
             
             if (SDL_GetMouseFocus() == win) {
                 SDL_SetRelativeMouseMode(1);
