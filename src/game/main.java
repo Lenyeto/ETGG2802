@@ -29,27 +29,50 @@ public class main{
     
     public static void main(String[] args){
         
-        try{
-            Controllers.create();
-        } catch (LWJGLException e){
-            e.printStackTrace();
-        }
         
         long controller = 0;
-        long controllers[] = new long[4];
         
-        SDL_Init(SDL_INIT_GAMECONTROLLER);
-        for (int i = 0; i < SDL_NumJoysticks(); ++i) {
-            if (SDL_IsGameController(i) > 0) {
-                controller = SDL_GameControllerOpen(i);
-                if (controller > 0) {
-                    break;
-                } else {
-                    System.out.println("Coult not open game controller");
-                }
-            }
+        char playerCount = 0;
+        
+        
+        
+        if (args.length >= 1) {
+            playerCount = (char) Integer.parseInt(args[0]);
         }
         
+        
+        
+        
+        long controllers[] = new long[playerCount];
+        for (long i : controllers) {
+            i = 0;
+        }
+        
+        SDL_Init(SDL_INIT_GAMECONTROLLER);
+        
+        for (long j : controllers) {
+            for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+                if (SDL_IsGameController(i) > 0) {
+                    controller = SDL_GameControllerOpen(i);
+                    if (controller > 0) {
+                        
+                    } else {
+                        System.out.println("Coult not open game controller");
+                    }
+                    for (int k = 0; k < controllers.length; k++) {
+                        if (controllers[k] == 0) {
+                            controllers[k] = controller;
+                            break;
+                        }
+                    }
+                    System.out.println(controller);
+                }
+            }   
+        }
+        
+        for (long i : controllers) {
+            System.out.println(i);
+        }
         
         
         
@@ -77,6 +100,12 @@ public class main{
                     screenHeight = Integer.parseInt(tmp[1]);
                 }
         }
+        
+        
+        
+        
+        
+        
         int windowedOption = 0;
         if (args.length >= 3){
             String tmp = args[2];
@@ -90,6 +119,13 @@ public class main{
                 
             }
         }
+        
+        
+        
+        
+        
+        
+        
         
         SDL_Init(SDL_INIT_VIDEO);
         long win = SDL_CreateWindow("ETGG 2802",40,60, screenWidth,screenHeight, SDL_WINDOW_OPENGL );
@@ -132,12 +168,24 @@ public class main{
         Program skyprog;
         Program blurprog;
         Program glowprog;
-        Program bumpprog;
+        Program stitchprog;
+        //Program bumpprog;
         Program explodeprog;
         float prev;
         Framebuffer fbo1;
         Framebuffer fbo2;
-        Player player;
+        Framebuffer[][] fbos = new Framebuffer[playerCount][2];
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        Player players[] = new Player[playerCount];
         List<PlanetEntity> planetList = new ArrayList<>();
         List<Bullet> bulletList = new ArrayList<>();
         PlanetEntity mercury;
@@ -153,18 +201,90 @@ public class main{
         fbo1 = new Framebuffer(screenWidth,screenHeight);
         fbo2 = new Framebuffer(screenWidth,screenHeight);
 
+        if (playerCount == 1) {
+            fbos[0][0] = new Framebuffer(screenWidth, screenHeight);
+            fbos[0][1] = new Framebuffer(screenWidth, screenHeight);
+        } else if (playerCount == 2) {
+            fbos[0][0] = new Framebuffer(screenWidth, screenHeight/2);
+            fbos[0][1] = new Framebuffer(screenWidth, screenHeight/2);
+            
+            fbos[1][0] = new Framebuffer(screenWidth, screenHeight/2);
+            fbos[1][1] = new Framebuffer(screenWidth, screenHeight/2);
+        } else if (playerCount == 3) {
+            fbos[0][0] = new Framebuffer(screenWidth/2, screenHeight/2);
+            fbos[0][1] = new Framebuffer(screenWidth/2, screenHeight/2);
+            
+            fbos[1][0] = new Framebuffer(screenWidth/2, screenHeight/2);
+            fbos[1][1] = new Framebuffer(screenWidth/2, screenHeight/2);
+            
+            fbos[2][0] = new Framebuffer(screenWidth, screenHeight/2);
+            fbos[2][1] = new Framebuffer(screenWidth, screenHeight/2);
+        } else {
+            fbos[0][0] = new Framebuffer(screenWidth/2, screenHeight/2);
+            fbos[0][1] = new Framebuffer(screenWidth/2, screenHeight/2);
+            
+            fbos[1][0] = new Framebuffer(screenWidth/2, screenHeight/2);
+            fbos[1][1] = new Framebuffer(screenWidth/2, screenHeight/2);
+            
+            fbos[2][0] = new Framebuffer(screenWidth/2, screenHeight/2);
+            fbos[2][1] = new Framebuffer(screenWidth/2, screenHeight/2);
+            
+            fbos[3][0] = new Framebuffer(screenWidth/2, screenHeight/2);
+            fbos[3][1] = new Framebuffer(screenWidth/2, screenHeight/2);
+        }
+        
+        
+        
         prog = new Program("vs.txt","fs.txt");
         skyprog = new Program("skyvs.txt","skyfs.txt");
         
         blurprog = new Program("blurvs.txt","blurfs.txt");
-        bumpprog = new Program("bumpvs.txt", "bumpfs.txt");
+        //bumpprog = new Program("bumpvs.txt", "bumpfs.txt");
         explodeprog = new Program("explodevs.txt", "explodegs.txt", "explodefs.txt");
         //glowprog = new Program("glowvs.txt","glowfs.txt");
+        stitchprog = new Program("stitchvs.txt", "stitchfs.txt");
         skyprog.use();
         SkyBox skybox = new SkyBox(s, skyprog);
         //assets/tetraship.obj.mesh
         //assets/tie_fighter/Creature.obj.mesh
-        player = new Player(0, 0, 0, "assets/tie_fighter/Creature.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, screenWidth, screenHeight);
+        
+        players[0] = new Player(0, 0, 0, "assets/tie_fighter/Creature.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, screenWidth, screenHeight);
+        players[0].setScale(0.01f);
+        if (playerCount == 2) {
+            players[1] = new Player(1, 0, 0, "assets/tie_fighter/Creature.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, screenWidth, screenHeight);
+            players[1].setScale(0.01f);
+        }
+        if (playerCount == 3) {
+            players[1] = new Player(1, 0, 0, "assets/tie_fighter/Creature.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, screenWidth, screenHeight);
+            players[1].setScale(0.01f);
+            
+            players[2] = new Player(0, 1, 0, "assets/tie_fighter/Creature.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, screenWidth, screenHeight);
+            players[2].setScale(0.01f);
+        }
+        if (playerCount == 4) {
+            players[1] = new Player(1, 0, 0, "assets/tie_fighter/Creature.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, screenWidth, screenHeight);
+            players[1].setScale(0.01f);
+            
+            players[2] = new Player(0, 1, 0, "assets/tie_fighter/Creature.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, screenWidth, screenHeight);
+            players[2].setScale(0.01f);
+            
+            players[3] = new Player(0, 0, 1, "assets/tie_fighter/Creature.obj.mesh", SDLK_w, SDLK_s, SDLK_a, SDLK_d, SDLK_SPACE, SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, screenWidth, screenHeight);
+            players[3].setScale(0.01f);
+        }
+        players[0].setController(controllers[0]);
+        if (playerCount == 2) {
+            players[1].setController(controllers[1]);
+        }
+        if (playerCount == 3) {
+            players[1].setController(controllers[1]);
+            players[2].setController(controllers[2]);
+        }
+        if (playerCount == 4) {
+            players[1].setController(controllers[1]);
+            players[2].setController(controllers[2]);
+            players[3].setController(controllers[3]);
+        }
+        
         mercury = new PlanetEntity(5.0f, -20.f, 2.0f, 3, .75f, new Mesh("assets/mercury.obj.mesh"), "mercury");
         earth = new PlanetEntity(-7.0f, -25.0f, -10.0f, 6, 2.0f, new Mesh("assets/earth.obj.mesh"), "earth");
         earth.mesh.normal_map = new ImageTexture("assets/earth_normal.jpg");
@@ -173,7 +293,6 @@ public class main{
         jupiter = new PlanetEntity(-10.0f, 10.0f, -20.0f, 8, 3.0f, new Mesh("assets/jupiter.obj.mesh"), "jupiter");
         death_star = new PlanetEntity(3.0f, 0.0f, -100.0f, 60, 30.0f, new Mesh("assets/death_star.obj.mesh"), "death star"); //that's no moon...
 
-        player.setScale(0.01f);
         planetList.add(mercury); planetList.add(earth); planetList.add(moon); planetList.add(mars); planetList.add(jupiter); planetList.add(death_star);
         prev = (float)(System.nanoTime()*1E-9);
 
@@ -243,20 +362,22 @@ public class main{
                 move_forward = 0.0f;
             if (keys.contains(SDLK_SPACE))
             {
+                /*
                 if (bulletTime >= 0.3f){
                     Bullet b = new Bullet(player);
                     bulletList.add(b);
                     bulletTime = 0.0f;
                 }
+                */
             }
                 
             
-            rotate_forward = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY);
-            move_sideways = SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX);
             
+            //player.update(move_forward, rotate_forward, move_sideways, LeftBumper, RightBumper, elapsed);
             
-            player.update(move_forward, rotate_forward, move_sideways, LeftBumper, RightBumper, elapsed);
-            
+            for (Player pl : players) {
+                pl.update(move_forward, SDL_GameControllerGetAxis(pl.getController(), SDL_CONTROLLER_AXIS_LEFTY)/8000, SDL_GameControllerGetAxis(pl.getController(), SDL_CONTROLLER_AXIS_LEFTX) / 8000, SDL_GameControllerGetButton(pl.getController(), SDL_CONTROLLER_BUTTON_LEFTSHOULDER), SDL_GameControllerGetButton(pl.getController(), SDL_CONTROLLER_BUTTON_RIGHTSHOULDER), elapsed);
+            }
             
             float maxexplode = 1f;
             
@@ -277,97 +398,126 @@ public class main{
             
             UnitSquare usq = new UnitSquare();
             
+            int cur_player = 0;
             
-            //the fbo stuff is for later...
-            fbo1.bind();
-            
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            prog.use();
-            prog.setUniform("lightPos",new vec3(50,50,50) );
-            player.getCam().draw(prog);
-            prog.setUniform("worldMatrix",mat4.identity());
-            
-            player.render(prog);
-            
-            for (i = 0; i < bulletList.size(); i++)
-            {
-                bulletList.get(i).update(player,elapsed);
-                bulletList.get(i).render(prog);
-                if (!bulletList.get(i).isActive)
-                    bulletList.remove(bulletList.get(i));
-            }
-            
-            explodeprog.use();
-            
-            explodeprog.setUniform("lightPos",new vec3(50,50,50) );
-            explodeprog.setUniform("worldMatrix",mat4.identity());
-            explodeprog.setUniform("projMatrix", player.getCam().getProjMatrix());
-            explodeprog.setUniform("explode",explode);
-            player.getCam().draw(explodeprog);
-            for(p = 0; p < planetList.size(); p++)
-            {
-                planetList.get(p).render(explodeprog);
+            for (Framebuffer[] fb : fbos) {
+                
+                //the fbo stuff is for later...
+                fb[0].bind();
+
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                prog.use();
+                prog.setUniform("lightPos",new vec3(50,50,50) );
+                players[cur_player].getCam().draw(prog);
+                prog.setUniform("worldMatrix",mat4.identity());
+
+                //players[0].render(prog);
+                for (Player pl : players) {
+                    pl.render(prog);
+                }
+
                 for (i = 0; i < bulletList.size(); i++)
                 {
-                    if(Utility.Collision(planetList.get(p).mPosition, planetList.get(p).size, bulletList.get(i).mPosition, bulletList.get(i).size))
+                    bulletList.get(i).update(players[0],elapsed);
+                    bulletList.get(i).render(prog);
+                    if (!bulletList.get(i).isActive)
+                        bulletList.remove(bulletList.get(i));
+                }
+
+
+                explodeprog.use();
+
+                explodeprog.setUniform("lightPos",new vec3(50,50,50) );
+                explodeprog.setUniform("worldMatrix",mat4.identity());
+                explodeprog.setUniform("projMatrix", players[cur_player].getCam().getProjMatrix());
+                explodeprog.setUniform("explode",explode);
+                players[cur_player].getCam().draw(explodeprog);
+                for(p = 0; p < planetList.size(); p++)
+                {
+                    planetList.get(p).render(explodeprog);
+                    for (i = 0; i < bulletList.size(); i++)
                     {
-                        if (!planetList.get(p).mName.equals("death star"))
+                        if(Utility.Collision(planetList.get(p).mPosition, planetList.get(p).size, bulletList.get(i).mPosition, bulletList.get(i).size))
                         {
-                            bulletList.remove(bulletList.get(i));
-                            planetList.get(p).mHealth--;
-                            if(planetList.get(p).mHealth <= 0 && dexplode == 0.0f)
-                                dexplode = 0.5f;
-                                //planetList.remove(planetList.get(p));
+                            if (!planetList.get(p).mName.equals("death star"))
+                            {
+                                bulletList.remove(bulletList.get(i));
+                                planetList.get(p).mHealth--;
+                                if(planetList.get(p).mHealth <= 0 && dexplode == 0.0f)
+                                    dexplode = 0.5f;
+                                    //planetList.remove(planetList.get(p));
+                            }
                         }
                     }
                 }
+
+                skyprog.use();
+                skyprog.setUniform("eyePos", players[cur_player].mPosition);
+                skyprog.setUniform("projMatrix", players[cur_player].getCam().getProjMatrix());
+                skyprog.setUniform("viewMatrix", players[cur_player].getCam().getViewMatrix());
+                players[cur_player].getCam().draw(skyprog);
+                skybox.draw(skyprog);
+
+
+                //bumpprog.use();
+                //bumpprog.setUniform("lightvec",new vec3(50,50,50) );
+                //bumpprog.setUniform("CAMERA_POSITION", player.mPosition);
+                //player.getCam().draw(bumpprog);
+                //planetList.get(1).render(bumpprog);
+
+
+
+
+                fb[0].unbind();
+
+
+                fb[1].bind();
+
+                blurprog.use();
+                //float ayy = (int)player.getSpeed()>>4;
+                float ayy = 0;
+
+
+                blurprog.setUniform("boxwidth",ayy);  
+                blurprog.setUniform("diffuse_texture",fb[1].texture);
+                blurprog.setUniform("blurdelta",new vec2(1.0f,0.0f));
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                usq.draw(blurprog);
+
+
+                fb[1].unbind();
+
+
+
+                blurprog.setUniform("diffuse_texture",dummytex);
+
+                blurprog.setUniform("diffuse_texture",fb[1].texture);
+                blurprog.setUniform("blurdelta",new vec2(0.0f,1.0f));
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                usq.draw(blurprog);
+                players[cur_player].getCam().draw(blurprog);
+
+                
+                cur_player++;
             }
             
-            skyprog.use();
-            skyprog.setUniform("eyePos", player.mPosition);
-            skyprog.setUniform("projMatrix", player.getCam().getProjMatrix());
-            skyprog.setUniform("viewMatrix", player.getCam().getViewMatrix());
-            player.getCam().draw(skyprog);
-            skybox.draw(skyprog);
+            stitchprog.use();
+            stitchprog.setUniform("diffuse_one", fbos[0][0].texture);
+            if (playerCount == 2) {
+                stitchprog.setUniform("diffuse_two", fbos[1][0].texture);
+            } else if (playerCount == 3) {
+                stitchprog.setUniform("diffuse_two", fbos[1][0].texture);
+                stitchprog.setUniform("diffuse_three", fbos[2][0].texture);
+            } else if (playerCount == 4) {
+                stitchprog.setUniform("diffuse_two", fbos[1][0].texture);
+                stitchprog.setUniform("diffuse_three", fbos[2][0].texture);
+                stitchprog.setUniform("diffuse_four", fbos[3][0].texture);
+            }
+            stitchprog.setUniform("num_screens", playerCount);
+            stitchprog.setUniform("screenWidth", screenWidth);
+            stitchprog.setUniform("screenHeight", screenHeight);
             
-            
-            bumpprog.use();
-            bumpprog.setUniform("lightvec",new vec3(50,50,50) );
-            bumpprog.setUniform("CAMERA_POSITION", player.mPosition);
-            player.getCam().draw(bumpprog);
-            planetList.get(1).render(bumpprog);
-            
-            
-            
-            
-            fbo1.unbind();
-            
-           
-            fbo2.bind();
-            
-            blurprog.use();
-            //float ayy = (int)player.getSpeed()>>4;
-            float ayy = 0;
-            
-            
-            blurprog.setUniform("boxwidth",ayy);  
-            blurprog.setUniform("diffuse_texture",fbo1.texture);
-            blurprog.setUniform("blurdelta",new vec2(1.0f,0.0f));
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            usq.draw(blurprog);
-            
-            
-            fbo2.unbind();
-            
-            
-            
-            blurprog.setUniform("diffuse_texture",dummytex);
-            
-            blurprog.setUniform("diffuse_texture",fbo2.texture);
-            blurprog.setUniform("blurdelta",new vec2(0.0f,1.0f));
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            usq.draw(blurprog);
-            player.getCam().draw(blurprog);
+            usq.draw(stitchprog);
             
             
             if (SDL_GetMouseFocus() == win) {

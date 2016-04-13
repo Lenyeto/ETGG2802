@@ -39,6 +39,7 @@ public class Player extends MeshEntity {
     private float speed = 0;
     private float rotate_speed = 2.0f;
     private vec3 rotateVec = new vec3(0,0,1);
+    private long controller = 0;
     
     //Creates a camera that the palyer uses.
     private Camera cam;
@@ -137,6 +138,14 @@ public class Player extends MeshEntity {
     //Renders the player and the projectiles.
     public void render(Program prog) {
         super.render(prog);
+    }
+    
+    public void setController(long i) {
+        controller = i;
+    }
+    
+    public long getController() {
+        return controller;
     }
     
     public float getSpeed(){

@@ -1,0 +1,52 @@
+#version 150
+uniform sampler2D diffuse_one;
+uniform sampler2D diffuse_two;
+uniform sampler2D diffuse_three;
+uniform sampler2D diffuse_four;
+uniform float num_screens;
+uniform float screenWidth;
+uniform float screenHeight;
+uniform vec2 blurdelta;
+
+in vec2 v_texcoord;
+out vec4 color;
+
+void main(){
+	color = vec4(0, 0, 0, 1);
+
+    if (num_screens == 1) {
+		color = texture(diffuse_one, v_texcoord);
+	} else if (num_screens == 2) {
+		if (v_texcoord.y < screenHeight/2) {
+			color = texture(diffuse_one, v_texcoord);
+		} else if (v_texcoord.y > screenHeight/2) {
+			vec2 temp = vec2(v_texcoord.x, v_texcoord.y - screenHeight/2);
+			color = texture(diffuse_two, temp);
+		}
+	} else if (num_screens == 3) {
+		if (v_texcoord.y > screenHeight/2) {
+			vec2 temp = vec2(v_texcoord.x, v_texcoord.y - screenHeight/2);
+			color = texture(diffuse_three, temp);
+		} else {
+			if (v_texcoord.x < screenWidth/2) {
+				color = texture(diffuse_one, v_texcoord);
+			} else if (v_texcoord.x > screenWidth/2) {
+				vec2 temp = vec2(v_texcoord.x - screenWidth/2, v_texcoord.y);
+				color = texture(diffuse_two, temp);
+			}
+		}
+	} else if (num_screens == 4) {
+		if (v_texcoord.x < screenWidth/2 && v_texcoord.y < screenHeight/2) {
+			color = texture(diffuse_one, v_texcoord);
+		} else if (v_texcoord.x < screenWidth/2 && v_texcoord.y > screenHeight/2) {
+			vec2 temp = vec2(v_texcoord.x, v_texcoord.y - screenHeight/2);
+			color = texture(diffuse_three, temp);
+		} else if (v_texcoord.x > screenWidth/2 && v_texcoord.y < screenHeight/2) {
+			vec2 temp = vec2(v_texcoord.x - screenWidth/2, v_texcoord.y);
+			color = texture(diffuse_three, temp);
+		} else if (v_texcoord.x > screenWidth/2 && v_texcoord.y > screenHeight/2) {
+			vec2 temp = vec2(v_texcoord.x - screenWidth/2, v_texcoord.y - screenHeight/2);
+			color = texture(diffuse_three, temp);
+		}
+	}
+}
