@@ -86,7 +86,9 @@ public class Framebuffer {
                     tmp += " "+j;{
                 }
             }
-                throw new RuntimeException("This FBO has textures that are active on units: "+tmp);
+                
+                //THIS MAY BREAK SOMETHING
+                //throw new RuntimeException("This FBO has textures that are active on units: "+tmp);
             }
         }
         

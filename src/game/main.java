@@ -42,18 +42,17 @@ public class main{
         
         
         
-        
         long controllers[] = new long[playerCount];
-        for (long i : controllers) {
-            i = 0;
-        }
+        //long haptics[] = new long[playerCount];
+        
         
         SDL_Init(SDL_INIT_GAMECONTROLLER);
-        
+        SDL_Init(SDL_INIT_HAPTIC);
         for (long j : controllers) {
             for (int i = 0; i < SDL_NumJoysticks(); ++i) {
                 if (SDL_IsGameController(i) > 0) {
                     controller = SDL_GameControllerOpen(i);
+                    //haptics[0] = SDL_HapticOpen(i);
                     if (controller > 0) {
                         
                     } else {
@@ -62,6 +61,10 @@ public class main{
                     for (int k = 0; k < controllers.length; k++) {
                         if (controllers[k] == 0) {
                             controllers[k] = controller;
+                            //haptics[k] = SDL_HapticOpen(i);
+                            //System.out.println(haptics[k]);
+                            //SDL_HapticRumbleInit(haptics[k]);
+                            //SDL_HapticRumblePlay(haptics[k], 1f, 1000);
                             break;
                         }
                     }
@@ -76,16 +79,7 @@ public class main{
         
         
         
-        //controller pressed/not pressed variables
-        int Start = 0;
-        int AButton = 0;
-        int RightBumper = 0;
-        int LeftBumper = 0;
-        //precision based controls
-        float rotate_forward = 0.0f;
-        float move_sideways = 0.0f;
-        float rotate_vertical = 0.0f;
-        float rotate_horizontal = 0.0f;
+        
         float move_forward = 0.0f;
                 
         int screenWidth = 512;
@@ -168,7 +162,6 @@ public class main{
         Program skyprog;
         Program blurprog;
         Program glowprog;
-        Program stitchprog;
         //Program bumpprog;
         Program explodeprog;
         float prev;
@@ -242,7 +235,6 @@ public class main{
         //bumpprog = new Program("bumpvs.txt", "bumpfs.txt");
         explodeprog = new Program("explodevs.txt", "explodegs.txt", "explodefs.txt");
         //glowprog = new Program("glowvs.txt","glowfs.txt");
-        stitchprog = new Program("stitchvs.txt", "stitchfs.txt");
         skyprog.use();
         SkyBox skybox = new SkyBox(s, skyprog);
         //assets/tetraship.obj.mesh
@@ -300,21 +292,15 @@ public class main{
         float explode = 0.0f;
         float dexplode = 0.0f;
         
-        
+        int cur_player = 0;
         
         SDL_Event ev=new SDL_Event();
         while(true){
             while(true){
-                //assigns values to the controller buttons
-                
-                Start = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START);
-                AButton = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_A);
-                LeftBumper = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-                RightBumper = SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
                 
                 
-                if (Start > 0)
-                    System.exit(0);
+                //if (Start > 0)
+                //    System.exit(0);
                                 
                 int rv = SDL_PollEvent(ev);
                 if( rv == 0 )
@@ -342,24 +328,8 @@ public class main{
             
             bulletTime += elapsed;
             
-            if( keys.contains(SDLK_w ))
-                rotate_forward = -1.0f;
-            else if (keys.contains(SDLK_s))
-                rotate_forward = 1.0f;
-            else
-                rotate_forward = 0.0f;
             //LeftBumper = keys.contains(SDLK_a);
             //RightBumper = keys.contains(SDLK_d);
-            if (keys.contains(SDLK_q))
-                move_sideways = -1.0f;
-            else if (keys.contains(SDLK_e))
-                move_sideways = 1.0f;
-            else
-                move_sideways = 0.0f;
-            if (keys.contains(SDLK_LSHIFT))
-                move_forward = 1.0f;
-            else
-                move_forward = 0.0f;
             if (keys.contains(SDLK_SPACE))
             {
                 /*
@@ -376,7 +346,8 @@ public class main{
             //player.update(move_forward, rotate_forward, move_sideways, LeftBumper, RightBumper, elapsed);
             
             for (Player pl : players) {
-                pl.update(move_forward, SDL_GameControllerGetAxis(pl.getController(), SDL_CONTROLLER_AXIS_LEFTY)/8000, SDL_GameControllerGetAxis(pl.getController(), SDL_CONTROLLER_AXIS_LEFTX) / 8000, SDL_GameControllerGetButton(pl.getController(), SDL_CONTROLLER_BUTTON_LEFTSHOULDER), SDL_GameControllerGetButton(pl.getController(), SDL_CONTROLLER_BUTTON_RIGHTSHOULDER), elapsed);
+                pl.update(SDL_GameControllerGetAxis(pl.getController(), SDL_CONTROLLER_AXIS_TRIGGERRIGHT)/30000, SDL_GameControllerGetAxis(pl.getController(), SDL_CONTROLLER_AXIS_LEFTY)/8000, SDL_GameControllerGetAxis(pl.getController(), SDL_CONTROLLER_AXIS_LEFTX) / 8000, SDL_GameControllerGetButton(pl.getController(), SDL_CONTROLLER_BUTTON_LEFTSHOULDER), SDL_GameControllerGetButton(pl.getController(), SDL_CONTROLLER_BUTTON_RIGHTSHOULDER), elapsed);
+                //SDL_JoystickCurrentPowerLevel(pl.getController());
             }
             
             float maxexplode = 1f;
@@ -397,8 +368,8 @@ public class main{
             
             
             UnitSquare usq = new UnitSquare();
-            
-            int cur_player = 0;
+             
+            cur_player = 0;
             
             for (Framebuffer[] fb : fbos) {
                 
@@ -406,7 +377,9 @@ public class main{
                 System.out.println(cur_player);
                 fb[0].bind();
 
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                
                 prog.use();
                 prog.setUniform("lightPos",new vec3(50,50,50) );
                 players[cur_player].getCam().draw(prog);
@@ -446,7 +419,6 @@ public class main{
                                 planetList.get(p).mHealth--;
                                 if(planetList.get(p).mHealth <= 0 && dexplode == 0.0f)
                                     dexplode = 0.5f;
-                                    //planetList.remove(planetList.get(p));
                             }
                         }
                     }
@@ -483,46 +455,57 @@ public class main{
                 blurprog.setUniform("boxwidth",ayy);  
                 blurprog.setUniform("diffuse_texture",fb[0].texture);
                 blurprog.setUniform("blurdelta",new vec2(1.0f,0.0f));
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 usq.draw(blurprog);
                 
 
                 fb[1].unbind();
 
 
+                
+                // AS A TEMPORARY FIX I COMMENTED OUT A PART OF FRAMEBUFFER.JAVA
+                
+                if (playerCount == 1) {
+                    glViewport(0, 0, screenWidth, screenHeight);
+                } else if (playerCount == 2) {
+                    if (cur_player == 0) {
+                        glViewport(0, screenHeight/2, screenWidth, screenHeight/2);
+                    } else if (cur_player == 1) {
+                        glViewport(0, 0, screenWidth, screenHeight/2);
+                    }
+                } else if (playerCount == 3) {
+                    if (cur_player == 0) {
+                        glViewport(0, screenHeight/2, screenWidth/2, screenHeight/2);
+                    } else if (cur_player == 1) {
+                        glViewport(screenWidth/2, screenHeight/2, screenWidth/2, screenHeight/2);
+                    } else if (cur_player == 2) {
+                        glViewport(0, 0, screenWidth, screenHeight/2);
+                    }
+                } else {
+                    if (cur_player == 0) {
+                        glViewport(0, screenHeight/2, screenWidth/2, screenHeight/2);
+                    } else if (cur_player == 1) {
+                        glViewport(screenWidth/2, screenHeight/2, screenWidth/2, screenHeight/2);
+                    } else if (cur_player == 2) {
+                        glViewport(0, 0, screenWidth/2, screenHeight/2);
+                    } else if (cur_player == 3) {
+                        glViewport(screenWidth/2, 0, screenWidth/2, screenHeight/2);
+                    }
+                }
+                
+                
 
-                //blurprog.setUniform("diffuse_texture",dummytex);
+                blurprog.setUniform("diffuse_texture",dummytex);
 
-                //blurprog.setUniform("diffuse_texture",fb[1].texture);
-                //blurprog.setUniform("blurdelta",new vec2(0.0f,1.0f));
-                //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                //usq.draw(blurprog);
-                //players[cur_player].getCam().draw(blurprog);
+                blurprog.setUniform("diffuse_texture",fb[1].texture);
+                blurprog.setUniform("blurdelta",new vec2(0.0f,1.0f));
+                usq.draw(blurprog);
+                players[cur_player].getCam().draw(blurprog);
 
                 
                 cur_player++;
             }
             
-            //fbo1.bind();
-            
-            stitchprog.use();
-            stitchprog.setUniform("diffuse_one", fbos[0][0].texture);
-            if (playerCount == 2) {
-                stitchprog.setUniform("diffuse_two", fbos[1][0].texture);
-            } else if (playerCount == 3) {
-                stitchprog.setUniform("diffuse_two", fbos[1][0].texture);
-                stitchprog.setUniform("diffuse_three", fbos[2][0].texture);
-            } else if (playerCount == 4) {
-                stitchprog.setUniform("diffuse_two", fbos[1][0].texture);
-                stitchprog.setUniform("diffuse_three", fbos[2][0].texture);
-                stitchprog.setUniform("diffuse_four", fbos[3][0].texture);
-            }
-            stitchprog.setUniform("num_screens", (float)playerCount);
-            stitchprog.setUniform("screenWidth", (float)screenWidth);
-            stitchprog.setUniform("screenHeight", (float)screenHeight);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            usq.draw(stitchprog);
-            //fbo1.unbind();
             
             if (SDL_GetMouseFocus() == win) {
                 SDL_SetRelativeMouseMode(1);
