@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
+import framework.GameController;
 
 
 /**
@@ -18,15 +19,15 @@ import javax.swing.*;
 public class launcher implements ActionListener{
     
     
-    private JButton _start_game;
-    private JComboBox _resolution_selection;
-    private JComboBox _player_count_selection;
-    private JComboBox _windowed_option_selection;
-    private JFrame _frame;
-    private menuCanvas _panel;
-    private String[] resolutionChoices = {"640x640", "1280x720", "1920x1080", "2160x1440", "3840x2160"};
-    private String[] playerChoices = {"1", "2", "3", "4"};
-    private String[] windowedOptions = {"Windowed", "Fullscreen", "Fullscreen 2"};
+    private final JButton _start_game;
+    private final JComboBox _resolution_selection;
+    private final JComboBox _player_count_selection;
+    private final JComboBox _windowed_option_selection;
+    private final JFrame _frame;
+    private final menuCanvas _panel;
+    private final String[] resolutionChoices = {"640x640", "1280x720", "1920x1080", "2160x1440", "3840x2160"};
+    private final String[] playerChoices = {"1", "2", "3", "4"};
+    private final String[] windowedOptions = {"Windowed", "Fullscreen", "Fullscreen 2"};
     
     
     public launcher() {
@@ -117,6 +118,7 @@ class menuCanvas extends JPanel implements ActionListener {
     private String playerCount = "1";
     private String windowedOption = "Windowed";
     
+    @Override
     public void actionPerformed(ActionEvent ae) {
         JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
         
@@ -128,6 +130,16 @@ class menuCanvas extends JPanel implements ActionListener {
         s[1] = resolution;
         s[2] = windowedOption;
         topFrame.setVisible(false);
+        String[] tmp = resolution.split("x");
+        int screenWidth = 512; 
+        int screenHeight = 512;
+        if (tmp.length >= 2) {
+            screenWidth = Integer.parseInt(tmp[0]);
+            screenHeight = Integer.parseInt(tmp[1]);
+        }
+        GameController.getInstance().setPlayerCount(Integer.parseInt(playerCount));
+        GameController.getInstance().setResolution(screenWidth, screenHeight);
+        
         main game = new main();
         game.main(s);
         topFrame.setVisible(true);

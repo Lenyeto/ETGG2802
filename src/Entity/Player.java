@@ -1,55 +1,40 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package Entity;
-import JSDL.JSDL.*;
-import static JSDL.JSDL.SDL_KEYDOWN;
-import java.util.Set;
+import static JSDL.JSDL.SDL_CONTROLLER_AXIS_LEFTX;
+import static JSDL.JSDL.SDL_CONTROLLER_AXIS_LEFTY;
+import static JSDL.JSDL.SDL_CONTROLLER_AXIS_TRIGGERRIGHT;
+import static JSDL.JSDL.SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
 import framework.Mesh;
 import framework.Program;
-import static JGL.JGL.*;
 import framework.Camera;
-import framework.math3d.mat4;
+import framework.Framebuffer;
 import framework.math3d.vec3;
 import static java.lang.Math.abs;
-import static java.lang.Math.sin;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeSet;
+import static JSDL.JSDL.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
+import static JSDL.JSDL.SDL_CONTROLLER_BUTTON_START;
+import static JSDL.JSDL.SDL_GameControllerGetAxis;
+import static JSDL.JSDL.SDL_GameControllerGetButton;
 
-
-/**
- *
- * @author buellw
- */
 public class Player extends MeshEntity {
     //Initializes variables for input information from the player.
-    private int key_forward;
-    private int key_backward;
-    private int key_left;
-    private int key_right;
-    private int key_shoot;
-    private int key_look_right;
-    private int key_look_left;
-    private int key_look_up;
-    private int key_look_down;
-    private float speed_multiplier;
+    
+    private final float speed_multiplier;
     private float speed = 0;
-    private float rotate_speed = 2.0f;
+    private final float rotate_speed = 2.0f;
     private vec3 rotateVec = new vec3(0,0,1);
     private long controller = 0;
     
+    private Framebuffer[] fbos;
+    
     //Creates a camera that the palyer uses.
-    private Camera cam;
+    private final Camera cam;
     
     //Creates a mesh variable that will hold the mesh of the projectiles that are fired from the player.
-    private Mesh projectileMesh;
+    private final Mesh projectileMesh;
     
     float tmpTime = 0;
     
-    public Player(float x, float y, float z, String filename, int forward, int backward, int key_strafe_left, int key_strafe_right, int shoot, int lookRight, int lookLeft, int lookUp, int lookDown, float screenWidth, float screenHeight) {
+    public Player(float x, float y, float z, String filename, int screenWidth, int screenHeight) {
         //Obvious
         super(x, y, z, new Mesh(filename));
         
@@ -62,63 +47,63 @@ public class Player extends MeshEntity {
         //Sets the camera to look at a certain location in respect to the mesh.
         cam.lookAt( new vec3(x + 0,y + 0,z + 5), new vec3(x + 0,y + 0,z + 0), new vec3(x + 0,y + 1,z + 0) );
         
-        //Sets the input variables to what are passed in the creation of the player.
-        this.key_forward = forward;
-        this.key_backward = backward;
-        this.key_left = key_strafe_left;
-        this.key_right = key_strafe_right;
-        this.key_shoot = shoot;
-        this.key_look_down = lookDown;
-        this.key_look_up = lookUp;
-        this.key_look_right = lookRight;
-        this.key_look_left = lookLeft;
-        
+        //Sets up the new FBOs
+        fbos = new Framebuffer[2];
+        fbos[0] = new Framebuffer(screenWidth, screenHeight);
+        fbos[1] = new Framebuffer(screenWidth, screenHeight);
         
         //Sets the projectile mesh.
         projectileMesh = new Mesh("assets/column.obj.mesh");
         
+        //Sets the working scale of the ship
+        this.setScale(0.01f);
+        
         //Sets the speed multiplier.
         this.speed_multiplier = 800.0f;
     }
-                     //right-trigger       left-stick up/down    left-stick left/right   obvious       again, obvious
-    public void update(float move_forward, float rotate_forward, float move_sideways, int LBumper, int RBumper, float dtime) {
+    
+    public void update(float dtime) {
+        
+        if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_START) > 0) {
+            System.exit(0);
+        }
         //rotates the ship left and right
-        if (RBumper > 0){
+        if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_LEFTSHOULDER) > 0){
             rotateVec = super.getMatrix().up();
             rotate(rotateVec, -abs(rotate_speed - ((int)speed >> 7))  * dtime);     //bit shifting (dividing by 128)
         }
-        else if(LBumper > 0){
+        else if(SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) > 0){
             rotateVec = super.getMatrix().up();
             rotate(rotateVec, abs(rotate_speed - ((int)speed >> 7)) * dtime);       //bit shifting (dividing by 128)
         }
         //rotates the ship up and down
-        if (rotate_forward != 0.0f){
+        if (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) != 0.0f){
             rotateVec = super.getMatrix().right();
-            rotate(rotateVec, rotate_forward * abs(rotate_speed - ((int)speed >> 7)) * dtime);
+            rotate(rotateVec, (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY)/8000) * abs(rotate_speed - ((int)speed >> 7)) * dtime);
+        }
+        if ((SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) != 0.0f)) {
+            rotateVec = super.getMatrix().backward();
+            rotate(rotateVec, (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX)/8000) * abs(rotate_speed - ((int)speed >> 7)) * dtime);
         }
         //propels the ship forward faster
         
         tmpTime += dtime;
         //move_forward = abs((float) sin(tmpTime));
         
-        if (move_forward != 0.0f)
-            speed = (move_forward * speed_multiplier);
+        if ((SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT)/30000) != 0.0f)
+            speed = ((SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_TRIGGERRIGHT)/30000) * speed_multiplier);
         else
             speed = 50.0f;
-        //slightly rotates the ship and moves it sideways
-        if (move_sideways != 0.0f){
-            rotateVec = getMatrix().forward();
-            rotate(rotateVec, move_sideways * abs(rotate_speed - ((int)speed >> 7)) * dtime);
-        }
+        
         //moves the ship forward and sideways based on its relative position/direction
-        vec3 leftVec = mPosition.sub(getMatrix().left().mul(move_sideways * 2.0f * dtime));     //calculates the x direction...
+        vec3 leftVec = mPosition.sub(getMatrix().left().mul(0));     //calculates the x direction...
         vec3 forwardVec = leftVec.sub(getMatrix().backward().mul(speed * dtime));    //calculates the z direction...
         super.setPos(forwardVec.x, forwardVec.y, forwardVec.z);                                 //sets that shit
         
         
         //Allows for the camera to be controlled by the player, drifts, so that needs to be fixed.
-            cam.axisTurn(cam.getViewMatrix().right(), -200.0f * dtime);
-            //cam.axisTurn(super.getMatrix().up(super.getRotation()), -xrel * dtime);
+        cam.axisTurn(cam.getViewMatrix().right(), -200.0f * dtime);
+        //cam.axisTurn(super.getMatrix().up(super.getRotation()), -xrel * dtime);
         
         
         //Constantly sets the camera position to be relative to the player position.
@@ -150,5 +135,9 @@ public class Player extends MeshEntity {
     
     public float getSpeed(){
         return this.speed;
+    }
+    
+    public Framebuffer[] getFBOs() {
+        return fbos;
     }
 }
