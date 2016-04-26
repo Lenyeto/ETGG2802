@@ -12,9 +12,9 @@ import Entity.Player;
 import java.util.List;
 import java.util.ArrayList;
 import Entity.PlanetEntity;
-import de.fruitfly.ovr.OculusRift;
-import de.fruitfly.ovr.enums.EyeType;
-
+//Oculus Stuff
+//import de.fruitfly.ovr.OculusRift;
+//import de.fruitfly.ovr.enums.EyeType;
 
 public class main{
     
@@ -24,13 +24,14 @@ public class main{
         
         char playerCount = 0;
         
-        System.loadLibrary("JRiftLibrary64");
+        //Oculus Stuff
+        //System.loadLibrary("JRiftLibrary64");
         
-        OculusRift or = new OculusRift();
+        //OculusRift or = new OculusRift();
         
-        if (or.init()) {
-            System.out.println(or._initSummary);
-        }
+        //if (or.init()) {
+        //    System.out.println(or._initSummary);
+        //}
         
         
         //System.out.println(or.getEyePos(EyeType.ovrEye_Left).x);

@@ -85,4 +85,8 @@ public class vec3{
         return x*o.x+y*o.y+z*o.z;
     }
     
+    public vec3 floor() {
+        return new vec3(Math.floor(x), Math.floor(y), Math.floor(z));
+    }
+    
 }

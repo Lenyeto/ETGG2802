@@ -1,14 +1,20 @@
 
 package framework;
 
+import Entity.MeshEntity;
 import Entity.Player;
+import java.util.ArrayList;
 
 public class GameController {
     private final static GameController instance = new GameController();
+
+    
     private int controllerCount;
     private Player[] players;
     private int screenWidth = 512;
     private int screenHeight = 512;
+    private ArrayList<MeshEntity> entities;
+    private static final int gridSize = 10;
     
     
     private GameController() {
@@ -30,6 +36,9 @@ public class GameController {
         for (int i = 0; i < players.length; i++) {
             players[i] = new Player(i * 10, 0, 0, "assets/tie_fighter/Creature.obj.mesh", screenWidth, screenHeight);
             players[i].setController(Input.getInstance().getControllers()[i]);
+        }
+        for (MeshEntity mesh : players) {
+            addEntity(mesh);
         }
     }
     
@@ -58,5 +67,17 @@ public class GameController {
         tmp[0] = screenWidth;
         tmp[1] = screenHeight;
         return tmp;
+    }
+    
+    public ArrayList<MeshEntity> getEntities() {
+        return entities;
+    }
+    
+    public void addEntity(MeshEntity entity) {
+        //entities.add(entity);
+    }
+    
+    public int getGridSize() {
+        return gridSize;
     }
 }

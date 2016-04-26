@@ -2,18 +2,25 @@
 package Entity;
 import static JSDL.JSDL.SDL_CONTROLLER_AXIS_LEFTX;
 import static JSDL.JSDL.SDL_CONTROLLER_AXIS_LEFTY;
+import static JSDL.JSDL.SDL_CONTROLLER_AXIS_RIGHTX;
+import static JSDL.JSDL.SDL_CONTROLLER_AXIS_RIGHTY;
 import static JSDL.JSDL.SDL_CONTROLLER_AXIS_TRIGGERRIGHT;
+import static JSDL.JSDL.SDL_CONTROLLER_BUTTON_DPAD_DOWN;
+import static JSDL.JSDL.SDL_CONTROLLER_BUTTON_DPAD_LEFT;
+import static JSDL.JSDL.SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
+import static JSDL.JSDL.SDL_CONTROLLER_BUTTON_DPAD_UP;
 import static JSDL.JSDL.SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
 import framework.Mesh;
 import framework.Program;
 import framework.Camera;
-import framework.Framebuffer;
 import framework.math3d.vec3;
 import static java.lang.Math.abs;
 import static JSDL.JSDL.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
 import static JSDL.JSDL.SDL_CONTROLLER_BUTTON_START;
 import static JSDL.JSDL.SDL_GameControllerGetAxis;
 import static JSDL.JSDL.SDL_GameControllerGetButton;
+import java.util.ArrayList;
+import framework.GameController;
 
 public class Player extends MeshEntity {
     //Initializes variables for input information from the player.
@@ -24,6 +31,12 @@ public class Player extends MeshEntity {
     private vec3 rotateVec = new vec3(0,0,1);
     private long controller = 0;
     
+    private ArrayList<Bullet> bullets = new ArrayList();
+    
+    private float resetCameraTimerDefault = 8;
+    private float resetCameraTimer;
+    
+    private vec3 cameraOffset;
     
     //Creates a camera that the palyer uses.
     private final Camera cam;
@@ -73,11 +86,11 @@ public class Player extends MeshEntity {
         //rotates the ship up and down
         if (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY) != 0.0f){
             rotateVec = super.getMatrix().right();
-            rotate(rotateVec, (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY)/8000) * abs(rotate_speed - ((int)speed >> 7)) * dtime);
+            rotate(rotateVec, (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTY)/16000) * dtime);
         }
         if ((SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX) != 0.0f)) {
             rotateVec = super.getMatrix().backward();
-            rotate(rotateVec, (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX)/8000) * abs(rotate_speed - ((int)speed >> 7)) * dtime);
+            rotate(rotateVec, (SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_LEFTX)/16000) * dtime);
         }
         //propels the ship forward faster
         
@@ -89,6 +102,9 @@ public class Player extends MeshEntity {
         else
             speed = 50.0f;
         
+        
+        
+        
         //moves the ship forward and sideways based on its relative position/direction
         vec3 leftVec = mPosition.sub(getMatrix().left().mul(0));     //calculates the x direction...
         vec3 forwardVec = leftVec.sub(getMatrix().backward().mul(speed * dtime));    //calculates the z direction...
@@ -97,16 +113,34 @@ public class Player extends MeshEntity {
         
         //Allows for the camera to be controlled by the player, drifts, so that needs to be fixed.
         cam.axisTurn(cam.getViewMatrix().right(), -200.0f * dtime);
-        //cam.axisTurn(super.getMatrix().up(super.getRotation()), -xrel * dtime);
         
+        cameraOffset = getMatrix().right().mul(-0.005f * SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTX))
+                .add(getMatrix().up().mul(-0.005f * SDL_GameControllerGetAxis(controller, SDL_CONTROLLER_AXIS_RIGHTY)));
+        
+        if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT) > 0) {
+            cameraOffset = getMatrix().right().mul(500);
+        }
+        if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT) > 0) {
+            cameraOffset = getMatrix().left().mul(500);
+        }
+        if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_UP) > 0) {
+            cameraOffset = getMatrix().down().mul(500);
+        }
+        if (SDL_GameControllerGetButton(controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN) > 0) {
+            cameraOffset = getMatrix().up().mul(500);
+        }
+        
+        System.out.println(cameraOffset);
         
         //Constantly sets the camera position to be relative to the player position.
-        vec3 dank = getMatrix().forward();
-        vec3 memes = getMatrix().down();
-        vec3 cpos = mPosition.sub(dank.mul(200.0f)).sub(memes.mul(100.0f));
-        cam.lookAt(cpos, super.getMatrix().getPos(), super.getMatrix().up());
+        vec3 forward = getMatrix().forward();
+        vec3 down = getMatrix().down();
+        vec3 cpos = mPosition.sub(forward.mul(200.0f)).sub(down.mul(100.0f));
+        cam.lookAt(cpos.add(cameraOffset), super.getMatrix().getPos(), super.getMatrix().up());
 
-        
+        for (Bullet b : bullets) {
+            b.update(this, dtime, GameController.getInstance().getEntities());
+        }
     }
 
     //Returns the camera of the player.

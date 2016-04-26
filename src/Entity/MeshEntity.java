@@ -4,9 +4,8 @@ import framework.Mesh;
 import framework.Program;
 import framework.math3d.mat4;
 import framework.math3d.math3d;
-import framework.math3d.vec4;
 import framework.math3d.vec3;
-import java.lang.Math;
+import framework.GameController;
 
 public class MeshEntity{
     //Creates a variable for the entity's mesh.
@@ -22,6 +21,12 @@ public class MeshEntity{
     private float pr, yr, rr;
     
     public vec3 mPosition = new vec3();
+    
+    //1 is Sphere
+    //2 is Cube
+    private int collisionType;
+    private float collisionSize;
+    
     
     public MeshEntity(float x, float y, float z, Mesh mesh_) {
         //Obvious
@@ -74,5 +79,16 @@ public class MeshEntity{
         //Sets the wrold matrix to that of the position and the rotation. Needs fixed.
         prog.setUniform("worldMatrix", worldMatrix.getRotation(pr, yr, pr).mul(worldMatrix));
         mesh.draw(prog);
+    }
+
+    public boolean collides(MeshEntity mesh) {
+        vec3 zone1 = this.mPosition.mul(1/GameController.getInstance().getGridSize()).floor();
+        vec3 zone2 = mesh.mPosition.mul(1/GameController.getInstance().getGridSize()).floor();
+        
+        if (zone1 == zone2) {
+            return true;
+        }
+        
+        return false;
     }
 }
