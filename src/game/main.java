@@ -12,6 +12,9 @@ import Entity.Player;
 import java.util.List;
 import java.util.ArrayList;
 import Entity.PlanetEntity;
+import de.fruitfly.ovr.OculusRift;
+import de.fruitfly.ovr.enums.EyeType;
+
 
 public class main{
     
@@ -21,6 +24,16 @@ public class main{
         
         char playerCount = 0;
         
+        System.loadLibrary("JRiftLibrary64");
+        
+        OculusRift or = new OculusRift();
+        
+        if (or.init()) {
+            System.out.println(or._initSummary);
+        }
+        
+        
+        //System.out.println(or.getEyePos(EyeType.ovrEye_Left).x);
         
         
         if (args.length >= 1) {
@@ -158,7 +171,6 @@ public class main{
         //EXPLODE TEST
         float explode = 0.0f;
         float dexplode = 0.0f;
-        
         
         SDL_Event ev=new SDL_Event();
         while(true){
