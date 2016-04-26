@@ -27,6 +27,10 @@ void main(){
     sp *= sign(dp);
     sp = pow(sp,32.0); 
     sp = clamp(sp,0.0,1.0);
+
+    
+
     color = vec4( dp*tc.rgb + vec3(sp)  ,tc.a );
+
 }
 

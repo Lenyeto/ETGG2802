@@ -51,4 +51,12 @@ public class GameController {
     public Player[] getPlayers() {
         return players;
     }
+    
+    public int[] getResolution() {
+        int[] tmp;
+        tmp = new int[2];
+        tmp[0] = screenWidth;
+        tmp[1] = screenHeight;
+        return tmp;
+    }
 }

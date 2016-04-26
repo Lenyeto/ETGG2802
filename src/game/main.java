@@ -94,6 +94,7 @@ public class main{
         glClearColor(0.0f,0.0f,0.0f,1.0f);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
+        
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -107,6 +108,13 @@ public class main{
         //Program bumpprog;
         Program explodeprog;
         float prev;
+        
+        
+        Framebuffer FBO1;
+        Framebuffer FBO2;
+        
+        FBO1 = new Framebuffer(GameController.getInstance().getResolution()[0], GameController.getInstance().getResolution()[1]);
+        FBO2 = new Framebuffer(GameController.getInstance().getResolution()[0], GameController.getInstance().getResolution()[1]);
         
         //Initializes the players in the GameController.
         GameController.getInstance().init();
@@ -154,12 +162,7 @@ public class main{
         
         SDL_Event ev=new SDL_Event();
         while(true){
-            while(true){
-                
-                
-                //if (Start > 0)
-                //    System.exit(0);
-                                
+            while(true){     
                 int rv = SDL_PollEvent(ev);
                 if( rv == 0 )
                     break;
@@ -170,7 +173,6 @@ public class main{
                         System.exit(0);
                     }
                     keys.add(ev.key.keysym.sym);
-                    
                 }
                 if( ev.type == SDL_KEYUP ){
                     keys.remove(ev.key.keysym.sym);
@@ -209,9 +211,8 @@ public class main{
              
             
             for (Player pl : GameController.getInstance().getPlayers()) {
-                //the fbo stuff is for later...
-                pl.getFBOs()[0].bind();
-
+                
+                FBO1.bind();
                 
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 
@@ -220,7 +221,6 @@ public class main{
                 pl.getCam().draw(prog);
                 prog.setUniform("worldMatrix",mat4.identity());
 
-                //players[0].render(prog);
                 for (Player pl2 : GameController.getInstance().getPlayers()) {
                     pl2.render(prog);
                 }
@@ -248,62 +248,27 @@ public class main{
 
 
 
-                pl.getFBOs()[0].unbind();
-
+                FBO1.unbind();
                 
-
-                pl.getFBOs()[1].bind();
-
+                FBO2.bind();
+                
                 blurprog.use();
-                //float ayy = (int)player.getSpeed()>>4;
-                float ayy = 0;
-
-                
-                blurprog.setUniform("boxwidth", ayy);  
-                blurprog.setUniform("diffuse_texture", pl.getFBOs()[0].texture);
+                float width = 0;
+                blurprog.setUniform("boxwidth", width);
+                blurprog.setUniform("diffuse_texture", FBO1.texture);
                 blurprog.setUniform("blurdelta", new vec2(1.0f,0.0f));
                 usq.draw(blurprog);
                 
 
-                pl.getFBOs()[1].unbind();
-
-
-                
-                // AS A TEMPORARY FIX I COMMENTED OUT A PART OF FRAMEBUFFER.JAVA
-                
-                if (playerCount == 1) {
-                    glViewport(0, 0, screenWidth, screenHeight);
-                } else if (playerCount == 2) {
-                    if (cur_player == 0) {
-                        glViewport(screenWidth/2, screenHeight/2, screenWidth/2, screenHeight/2);
-                    } else if (cur_player == 1) {
-                        glViewport(0, 0, screenWidth/2, screenHeight/2);
-                    }
-                } else if (playerCount == 3) {
-                    if (cur_player == 0) {
-                        glViewport(0, screenHeight/2, screenWidth/2, screenHeight/2);
-                    } else if (cur_player == 1) {
-                        glViewport(screenWidth/2, screenHeight/2, screenWidth/2, screenHeight/2);
-                    } else if (cur_player == 2) {
-                        glViewport(0, 0, screenWidth/2, screenHeight/2);
-                    }
-                } else {
-                    if (cur_player == 0) {
-                        glViewport(0, screenHeight/2, screenWidth/2, screenHeight/2);
-                    } else if (cur_player == 1) {
-                        glViewport(screenWidth/2, screenHeight/2, screenWidth/2, screenHeight/2);
-                    } else if (cur_player == 2) {
-                        glViewport(0, 0, screenWidth/2, screenHeight/2);
-                    } else if (cur_player == 3) {
-                        glViewport(screenWidth/2, 0, screenWidth/2, screenHeight/2);
-                    }
-                }
+                FBO2.unbind();
                 
                 
-
+                
+                ScreenSpace.setViewport(playerCount, cur_player);
+                
                 blurprog.setUniform("diffuse_texture",dummytex);
 
-                blurprog.setUniform("diffuse_texture",pl.getFBOs()[1].texture);
+                blurprog.setUniform("diffuse_texture",FBO2.texture);
                 blurprog.setUniform("blurdelta",new vec2(0.0f,1.0f));
                 usq.draw(blurprog);
                 pl.getCam().draw(blurprog);

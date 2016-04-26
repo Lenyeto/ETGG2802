@@ -24,7 +24,6 @@ public class Player extends MeshEntity {
     private vec3 rotateVec = new vec3(0,0,1);
     private long controller = 0;
     
-    private Framebuffer[] fbos;
     
     //Creates a camera that the palyer uses.
     private final Camera cam;
@@ -46,11 +45,6 @@ public class Player extends MeshEntity {
         
         //Sets the camera to look at a certain location in respect to the mesh.
         cam.lookAt( new vec3(x + 0,y + 0,z + 5), new vec3(x + 0,y + 0,z + 0), new vec3(x + 0,y + 1,z + 0) );
-        
-        //Sets up the new FBOs
-        fbos = new Framebuffer[2];
-        fbos[0] = new Framebuffer(screenWidth, screenHeight);
-        fbos[1] = new Framebuffer(screenWidth, screenHeight);
         
         //Sets the projectile mesh.
         projectileMesh = new Mesh("assets/column.obj.mesh");
@@ -135,9 +129,5 @@ public class Player extends MeshEntity {
     
     public float getSpeed(){
         return this.speed;
-    }
-    
-    public Framebuffer[] getFBOs() {
-        return fbos;
     }
 }

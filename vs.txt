@@ -13,6 +13,7 @@ uniform mat4 viewMatrix;
 uniform mat4 worldMatrix;
 
 
+
 void main(){
 
     v_texcoord = a_texcoord;
@@ -24,4 +25,5 @@ void main(){
     p = p * projMatrix;
     gl_Position = p;
     v_normal = (vec4(a_normal,0.0) * worldMatrix).xyz;
+
 }
