@@ -5,9 +5,18 @@ import Entity.MeshEntity;
 import Entity.Player;
 import java.util.ArrayList;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Socket;
+
 public class GameController {
     private final static GameController instance = new GameController();
 
+    private boolean isOnline = false;
+    private boolean isClient = true;
+    private String serverAddress;
+    private int port;
     
     private int controllerCount;
     private Player[] players;
@@ -80,4 +89,26 @@ public class GameController {
     public int getGridSize() {
         return gridSize;
     }
+    
+    public void setServerInfo(String s) {
+        isOnline = true;
+        
+        String[] tmp = s.split(":");
+        serverAddress = tmp[0];
+        port = Integer.parseInt(tmp[1]);
+    }
+    
+    public void setToServer() {
+        isOnline = true;
+        isClient = false;
+    }
+    
+    public String getServerAddress() {
+        return serverAddress;
+    }
+    
+    public int getPort() {
+        return port;
+    }
+    
 }

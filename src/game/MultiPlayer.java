@@ -12,29 +12,25 @@ import Entity.Player;
 import java.util.List;
 import java.util.ArrayList;
 import Entity.PlanetEntity;
-//Oculus Stuff
-//import de.fruitfly.ovr.OculusRift;
-//import de.fruitfly.ovr.enums.EyeType;
 
-public class main{
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Socket;
+
+
+
+public class MultiPlayer{
     
     
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException{
         
+        Socket sock = new Socket(GameController.getInstance().getServerAddress(), GameController.getInstance().getPort());
+        
+        BufferedReader input = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+        System.out.println(input.readLine());
         
         char playerCount = 0;
-        
-        //Oculus Stuff
-        //System.loadLibrary("JRiftLibrary64");
-        
-        //OculusRift or = new OculusRift();
-        
-        //if (or.init()) {
-        //    System.out.println(or._initSummary);
-        //}
-        
-        
-        //System.out.println(or.getEyePos(EyeType.ovrEye_Left).x);
         
         
         if (args.length >= 1) {

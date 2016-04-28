@@ -130,7 +130,6 @@ public class Player extends MeshEntity {
             cameraOffset = getMatrix().up().mul(500);
         }
         
-        System.out.println(cameraOffset);
         
         //Constantly sets the camera position to be relative to the player position.
         vec3 forward = getMatrix().forward();

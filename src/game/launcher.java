@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import framework.GameController;
+import java.io.IOException;
 
 public class launcher implements ActionListener{
     
@@ -14,11 +15,16 @@ public class launcher implements ActionListener{
     private final JComboBox _resolution_selection;
     private final JComboBox _player_count_selection;
     private final JComboBox _windowed_option_selection;
+    private final JComboBox _type_option_selection;
+    
+    private final JTextField _server_ip_field;
+    
     private final JFrame _frame;
     private final menuCanvas _panel;
     private final String[] resolutionChoices = {"640x640", "1280x720", "1920x1080", "2160x1440", "3840x2160"};
     private final String[] playerChoices = {"1", "2", "3", "4"};
     private final String[] windowedOptions = {"Windowed", "Fullscreen", "Fullscreen 2"};
+    private final String[] typeOption = {"Offline", "Online - Client", "Online - Server"};
     
     
     public launcher() {
@@ -54,6 +60,14 @@ public class launcher implements ActionListener{
         _windowed_option_label.setSize(200, 20);
         _windowed_option_label.setLocation(0, 60);
         
+        JLabel _type_option_label = new JLabel("Program");
+        _type_option_label.setSize(200, 20);
+        _type_option_label.setSize(0, 80);
+        
+        JLabel _server_ip_label = new JLabel("Server IP");
+        _server_ip_label.setSize(200, 20);
+        _server_ip_label.setLocation(0, 100);
+        
         JLabel _blank = new JLabel("");
         
         _resolution_selection = new JComboBox(resolutionChoices);
@@ -74,6 +88,17 @@ public class launcher implements ActionListener{
         _windowed_option_selection.setSize(100, 20);
         _windowed_option_selection.setLocation(100, 60);
         
+        _type_option_selection = new JComboBox(typeOption);
+        _type_option_selection.setSelectedIndex(0);
+        _type_option_selection.addActionListener(this);
+        _type_option_selection.setSize(100, 20);
+        _type_option_selection.setLocation(100, 80);
+        
+        _server_ip_field = new JTextField("127.0.0.1:1337");
+        _server_ip_field.addActionListener(this);
+        _server_ip_field.setSize(100, 20);
+        _server_ip_field.setLocation(100, 100);
+        
         _frame.add(_start_game);
         _frame.add(_resolution_selection);
         _frame.add(_resolution_label);
@@ -81,7 +106,12 @@ public class launcher implements ActionListener{
         _frame.add(_playercount_label);
         _frame.add(_windowed_option_selection);
         _frame.add(_windowed_option_label);
+        _frame.add(_type_option_label);
+        _frame.add(_type_option_selection);
+        _frame.add(_server_ip_label);
+        _frame.add(_server_ip_field);
         _frame.add(_blank);
+        
         
         
         
@@ -96,6 +126,8 @@ public class launcher implements ActionListener{
         _panel.setRes((String) _resolution_selection.getSelectedItem());
         _panel.setPlayerCount((String) _player_count_selection.getSelectedItem());
         _panel.setWindowedOption((String) _windowed_option_selection.getSelectedItem());
+        _panel.setProgram((String) _type_option_selection.getSelectedItem());
+        _panel.setIP((String)_server_ip_field.getText());
     }
 }
 
@@ -108,31 +140,70 @@ class menuCanvas extends JPanel implements ActionListener {
     private String resolution = "1920x1080";
     private String playerCount = "1";
     private String windowedOption = "Windowed";
+    private String program = "Offline";
+    private String ip_port = "127.0.0.1:1337";
     
     @Override
     public void actionPerformed(ActionEvent ae) {
         JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
         
         
-        
-        String[] s = new String[3];
-        
-        s[0] = playerCount;
-        s[1] = resolution;
-        s[2] = windowedOption;
-        topFrame.setVisible(false);
-        String[] tmp = resolution.split("x");
-        int screenWidth = 512; 
-        int screenHeight = 512;
-        if (tmp.length >= 2) {
-            screenWidth = Integer.parseInt(tmp[0]);
-            screenHeight = Integer.parseInt(tmp[1]);
+        if (program.equals("Offline")) {
+            String[] s = new String[3];
+            s[0] = playerCount;
+            s[1] = resolution;
+            s[2] = windowedOption;
+            topFrame.setVisible(false);
+            String[] tmp = resolution.split("x");
+            int screenWidth = 512; 
+            int screenHeight = 512;
+            if (tmp.length >= 2) {
+                screenWidth = Integer.parseInt(tmp[0]);
+                screenHeight = Integer.parseInt(tmp[1]);
+            }
+            GameController.getInstance().setPlayerCount(Integer.parseInt(playerCount));
+            GameController.getInstance().setResolution(screenWidth, screenHeight);
+
+            SinglePlayer game = new SinglePlayer();
+            game.main(s);
         }
-        GameController.getInstance().setPlayerCount(Integer.parseInt(playerCount));
-        GameController.getInstance().setResolution(screenWidth, screenHeight);
         
-        main game = new main();
-        game.main(s);
+        if (program.equals("Online - Client")) {
+            String[] s = new String[4];
+            s[0] = playerCount;
+            s[1] = resolution;
+            s[2] = windowedOption;
+            s[3] = ip_port;
+            String[] tmp = resolution.split("x");
+            int screenWidth = 512; 
+            int screenHeight = 512;
+            if (tmp.length >= 2) {
+                screenWidth = Integer.parseInt(tmp[0]);
+                screenHeight = Integer.parseInt(tmp[1]);
+            }
+            GameController.getInstance().setPlayerCount(Integer.parseInt(playerCount));
+            GameController.getInstance().setResolution(screenWidth, screenHeight);
+
+            topFrame.setVisible(false);
+            MultiPlayer game = new MultiPlayer();
+            try {
+                game.main(s);
+            } catch (IOException e) {
+                
+            }
+        }
+        
+        if (program.equals("Online - Server")) {
+            Server s = new Server();
+            String[] str = new String[1];
+            try {
+                s.main(str);
+            } catch (IOException e) {
+                
+            }
+        }
+        
+        
         topFrame.setVisible(true);
         
         
@@ -150,7 +221,15 @@ class menuCanvas extends JPanel implements ActionListener {
         windowedOption = s;
     }
     
+    public void setProgram(String s) {
+        program = s;
+    }
+    
     public void paint(Graphics g) {
         
+    }
+
+    void setIP(String string) {
+        ip_port = string;
     }
 }
